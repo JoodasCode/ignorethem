@@ -1,11 +1,11 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AuthModal } from '@/components/auth/auth-modal'
 import { useAuth } from '@/hooks/use-auth'
 
-export default function SignInPage() {
+function SignInContent() {
   const [showModal, setShowModal] = useState(true)
   const { isAuthenticated } = useAuth()
   const router = useRouter()
@@ -31,5 +31,17 @@ export default function SignInPage() {
         defaultTab="signin"
       />
     </div>
+  )
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div>Loading...</div>
+      </div>
+    }>
+      <SignInContent />
+    </Suspense>
   )
 }

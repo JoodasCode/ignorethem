@@ -85,7 +85,7 @@ export class SearchService {
 
       // Apply filters
       if (options.filters) {
-        const { filters } = options.filters
+        const filters = options.filters
 
         if (filters.categories && filters.categories.length > 0) {
           query = query.in('category', filters.categories)
@@ -297,7 +297,7 @@ export class SearchService {
         .select('category')
         .not('category', 'is', null)
 
-      const categories = this.aggregateFacets(categoryData, 'category')
+      const categories = this.aggregateFacets(categoryData || [], 'category')
 
       // Get technology facets
       const { data: techData } = await supabase
@@ -322,7 +322,7 @@ export class SearchService {
         .select('complexity')
         .not('complexity', 'is', null)
 
-      const complexity = this.aggregateFacets(complexityData, 'complexity')
+      const complexity = this.aggregateFacets(complexityData || [], 'complexity')
 
       // Get pricing model facets
       const { data: pricingData } = await supabase
@@ -330,7 +330,7 @@ export class SearchService {
         .select('pricing_model')
         .not('pricing_model', 'is', null)
 
-      const pricingModel = this.aggregateFacets(pricingData, 'pricing_model')
+      const pricingModel = this.aggregateFacets(pricingData || [], 'pricing_model')
 
       return {
         categories,

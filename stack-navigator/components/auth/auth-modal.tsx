@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -24,8 +24,22 @@ export function AuthModal({ isOpen, onClose, defaultTab = 'signin' }: AuthModalP
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [magicLinkSent, setMagicLinkSent] = useState(false)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
-  const { signIn, signUp, signInWithMagicLink, signInWithGoogle } = useAuth()
+  const { signIn, signUp, signInWithMagicLink, signInWithGoogle, isAuthenticated } = useAuth()
+
+  // Close modal when user becomes authenticated and redirect to chat
+  React.useEffect(() => {
+    if (isAuthenticated && isOpen) {
+      setSuccessMessage('Successfully signed in! Taking you to the chat...')
+      setTimeout(() => {
+        onClose()
+        setSuccessMessage(null)
+        // Redirect to chat immediately after successful auth
+        window.location.href = '/chat'
+      }, 1500)
+    }
+  }, [isAuthenticated, isOpen, onClose])
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,11 +50,11 @@ export function AuthModal({ isOpen, onClose, defaultTab = 'signin' }: AuthModalP
     
     if (error) {
       setError(error.message)
+      setIsLoading(false)
     } else {
-      onClose()
+      setSuccessMessage('Signing in...')
+      // Don't set loading to false here - let the auth state change handle it
     }
-    
-    setIsLoading(false)
   }
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -52,12 +66,12 @@ export function AuthModal({ isOpen, onClose, defaultTab = 'signin' }: AuthModalP
     
     if (error) {
       setError(error.message)
+      setIsLoading(false)
     } else {
       setError(null)
       setMagicLinkSent(true)
+      setIsLoading(false)
     }
-    
-    setIsLoading(false)
   }
 
   const handleMagicLink = async (e: React.FormEvent) => {
@@ -84,11 +98,11 @@ export function AuthModal({ isOpen, onClose, defaultTab = 'signin' }: AuthModalP
     
     if (error) {
       setError(error.message)
+      setIsLoading(false)
     } else {
-      onClose()
+      setSuccessMessage('Redirecting to Google...')
+      // Don't set loading to false - the redirect will happen
     }
-    
-    setIsLoading(false)
   }
 
   const resetForm = () => {
@@ -96,6 +110,7 @@ export function AuthModal({ isOpen, onClose, defaultTab = 'signin' }: AuthModalP
     setPassword('')
     setName('')
     setError(null)
+    setSuccessMessage(null)
     setMagicLinkSent(false)
     setIsLoading(false)
   }
@@ -178,6 +193,12 @@ export function AuthModal({ isOpen, onClose, defaultTab = 'signin' }: AuthModalP
               {error && (
                 <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              {successMessage && (
+                <Alert>
+                  <AlertDescription className="text-green-600">{successMessage}</AlertDescription>
                 </Alert>
               )}
 
@@ -313,6 +334,12 @@ export function AuthModal({ isOpen, onClose, defaultTab = 'signin' }: AuthModalP
               {error && (
                 <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              {successMessage && (
+                <Alert>
+                  <AlertDescription className="text-green-600">{successMessage}</AlertDescription>
                 </Alert>
               )}
 

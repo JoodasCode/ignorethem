@@ -83,7 +83,7 @@ export class PostHogClient {
     if (!this.initialized || typeof window === 'undefined') {
       return false
     }
-    return posthog.isFeatureEnabled(flag)
+    return posthog.isFeatureEnabled(flag) || false
   }
 
   getFeatureFlag(flag: string): string | boolean | undefined {

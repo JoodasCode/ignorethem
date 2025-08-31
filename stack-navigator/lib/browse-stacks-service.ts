@@ -249,10 +249,16 @@ export class BrowseStacksService {
     }
 
     // Update the usage count on the stack
+    const { data: currentStack } = await supabase
+      .from('popular_stacks')
+      .select('usage_count')
+      .eq('id', stackId)
+      .single()
+
     const { error: updateError } = await supabase
       .from('popular_stacks')
       .update({
-        usage_count: supabase.raw('usage_count + 1'),
+        usage_count: (currentStack?.usage_count || 0) + 1,
         updated_at: new Date().toISOString()
       })
       .eq('id', stackId)

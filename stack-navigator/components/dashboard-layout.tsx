@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { SidebarNavigation } from "./sidebar-navigation"
+import { UnifiedSidebar } from "./unified-sidebar"
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -11,7 +11,7 @@ interface DashboardLayoutProps {
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="flex h-screen bg-background">
-      <SidebarNavigation />
+      <UnifiedSidebar />
       <main className="flex-1 overflow-auto">{children}</main>
     </div>
   )

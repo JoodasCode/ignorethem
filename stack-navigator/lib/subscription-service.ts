@@ -21,6 +21,9 @@ export class SubscriptionService {
    * Create or retrieve Stripe customer for user
    */
   async createOrGetCustomer(user: User): Promise<string> {
+    if (!stripe) {
+      throw new Error('Stripe is not configured')
+    }
     // Check if user already has a Stripe customer ID
     const { data: existingUser } = await supabase
       .from('users')
@@ -57,6 +60,9 @@ export class SubscriptionService {
     successUrl: string,
     cancelUrl: string
   ): Promise<string> {
+    if (!stripe) {
+      throw new Error('Stripe is not configured')
+    }
     const { data: user } = await supabase.auth.getUser()
     if (!user.user) {
       throw new Error('User not authenticated')
@@ -103,6 +109,10 @@ export class SubscriptionService {
       throw new Error('No Stripe customer found for user')
     }
 
+    if (!stripe) {
+      throw new Error('Stripe not configured')
+    }
+
     const session = await stripe.billingPortal.sessions.create({
       customer: user.stripe_customer_id,
       return_url: returnUrl,
@@ -115,26 +125,31 @@ export class SubscriptionService {
    * Get subscription data for user
    */
   async getSubscription(userId: string): Promise<SubscriptionData | null> {
-    const { data } = await supabase
-      .from('subscriptions')
-      .select('*')
-      .eq('user_id', userId)
-      .single()
+    try {
+      const { data } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', userId)
+        .single()
 
-    if (!data) return null
+      if (!data) return null
 
-    return {
-      id: data.id,
-      userId: data.user_id,
-      stripeCustomerId: data.stripe_customer_id,
-      stripeSubscriptionId: data.stripe_subscription_id,
-      tier: data.tier as SubscriptionTier,
-      status: data.status,
-      currentPeriodStart: new Date(data.current_period_start),
-      currentPeriodEnd: new Date(data.current_period_end),
-      cancelAtPeriodEnd: data.cancel_at_period_end,
-      createdAt: new Date(data.created_at),
-      updatedAt: new Date(data.updated_at),
+      return {
+        id: data.id,
+        userId: data.user_id,
+        stripeCustomerId: data.stripe_customer_id,
+        stripeSubscriptionId: data.stripe_subscription_id,
+        tier: data.tier as SubscriptionTier,
+        status: data.status,
+        currentPeriodStart: new Date(data.current_period_start),
+        currentPeriodEnd: new Date(data.current_period_end),
+        cancelAtPeriodEnd: data.cancel_at_period_end,
+        createdAt: new Date(data.created_at),
+        updatedAt: new Date(data.updated_at),
+      }
+    } catch (error) {
+      console.error('Error fetching subscription:', error)
+      return null
     }
   }
 
@@ -185,6 +200,10 @@ export class SubscriptionService {
       throw new Error('No active subscription found')
     }
 
+    if (!stripe) {
+      throw new Error('Stripe not configured')
+    }
+
     await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
       cancel_at_period_end: true,
     })
@@ -197,6 +216,10 @@ export class SubscriptionService {
     const subscription = await this.getSubscription(userId)
     if (!subscription?.stripeSubscriptionId) {
       throw new Error('No subscription found')
+    }
+
+    if (!stripe) {
+      throw new Error('Stripe not configured')
     }
 
     await stripe.subscriptions.update(subscription.stripeSubscriptionId, {
@@ -226,11 +249,16 @@ export class SubscriptionService {
    * Get user's current tier
    */
   async getUserTier(userId: string): Promise<SubscriptionTier> {
-    const subscription = await this.getSubscription(userId)
-    if (!subscription || subscription.status !== 'active') {
+    try {
+      const subscription = await this.getSubscription(userId)
+      if (!subscription || subscription.status !== 'active') {
+        return SUBSCRIPTION_TIERS.FREE
+      }
+      return subscription.tier
+    } catch (error) {
+      console.error('Error getting user tier:', error)
       return SUBSCRIPTION_TIERS.FREE
     }
-    return subscription.tier
   }
 }
 

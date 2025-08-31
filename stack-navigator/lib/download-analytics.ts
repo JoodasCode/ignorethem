@@ -1,4 +1,5 @@
 import { TechSelections } from './types/template'
+import { createClient } from '@/lib/supabase'
 
 export interface DownloadEvent {
   userId: string
@@ -154,6 +155,10 @@ export class DownloadAnalyticsService {
     limit = 10
   ): Promise<TechPopularity[]> {
     try {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
       const { data, error } = await supabase
         .rpc('get_technology_popularity', {
           p_category: category,
@@ -190,6 +195,10 @@ export class DownloadAnalyticsService {
     try {
       const dateFilter = this.buildDateFilter(startDate, endDate)
       
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
       const { data, error } = await supabase
         .rpc('get_conversion_funnel', dateFilter)
 
@@ -255,6 +264,10 @@ export class DownloadAnalyticsService {
     try {
       const dateFilter = this.buildDateFilter(startDate, endDate)
       
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
       const { data, error } = await supabase
         .rpc('get_performance_metrics', dateFilter)
 
@@ -299,6 +312,10 @@ export class DownloadAnalyticsService {
       })
 
       // Store in database for analysis
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
       const { error } = await supabase
         .from('upgrade_prompts')
         .insert({
@@ -330,6 +347,10 @@ export class DownloadAnalyticsService {
     }>
   }> {
     try {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      )
       const { data, error } = await supabase
         .rpc('get_upgrade_prompt_metrics')
 
@@ -373,6 +394,10 @@ export class DownloadAnalyticsService {
   }
 
   private static async storeConversionEvent(event: ConversionEvent): Promise<void> {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     const { error } = await supabase
       .from('conversion_events')
       .insert({
@@ -433,6 +458,11 @@ export class DownloadAnalyticsService {
       { category: 'ui', value: selections.ui }
     ]
 
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
+    
     for (const tech of technologies) {
       if (tech.value && tech.value !== 'none') {
         await supabase
@@ -446,6 +476,10 @@ export class DownloadAnalyticsService {
 
   private static async updateConversionMetrics(event: ConversionEvent): Promise<void> {
     // Update conversion tracking tables
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     const { error } = await supabase
       .rpc('update_conversion_metrics', {
         p_user_id: event.userId,
@@ -474,6 +508,10 @@ export class DownloadAnalyticsService {
   }
 
   private static async getDownloadStats(dateFilter: Record<string, string>) {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     const { data, error } = await supabase
       .rpc('get_download_stats', dateFilter)
 
@@ -488,6 +526,10 @@ export class DownloadAnalyticsService {
   }
 
   private static async getConversionStats(dateFilter: Record<string, string>) {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     const { data, error } = await supabase
       .rpc('get_conversion_stats', dateFilter)
 
@@ -506,6 +548,10 @@ export class DownloadAnalyticsService {
   }
 
   private static async getPerformanceStats(dateFilter: Record<string, string>) {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     const { data, error } = await supabase
       .rpc('get_performance_stats', dateFilter)
 
@@ -519,6 +565,10 @@ export class DownloadAnalyticsService {
   }
 
   private static async getTechPopularity(dateFilter: Record<string, string>) {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     const { data, error } = await supabase
       .rpc('get_tech_combinations', dateFilter)
 
@@ -584,6 +634,10 @@ export class DownloadAnalyticsService {
   }
 
   private static async getTrends(startDate: Date, endDate: Date) {
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     const { data, error } = await supabase
       .rpc('get_analytics_trends', {
         start_date: startDate.toISOString(),
@@ -628,8 +682,8 @@ export class DownloadAnalyticsService {
     const previousDownloads = trends.dailyDownloads.slice(-14, -7)
     
     if (recentDownloads.length > 0 && previousDownloads.length > 0) {
-      const recentAvg = recentDownloads.reduce((sum, day) => sum + day.count, 0) / recentDownloads.length
-      const previousAvg = previousDownloads.reduce((sum, day) => sum + day.count, 0) / previousDownloads.length
+      const recentAvg = recentDownloads.reduce((sum: number, day: any) => sum + day.count, 0) / recentDownloads.length
+      const previousAvg = previousDownloads.reduce((sum: number, day: any) => sum + day.count, 0) / previousDownloads.length
       
       if (recentAvg > previousAvg * 1.2) {
         insights.push('📈 Downloads are trending up! Great momentum.')

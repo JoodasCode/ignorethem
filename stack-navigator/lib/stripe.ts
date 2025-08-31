@@ -1,17 +1,18 @@
 import Stripe from 'stripe'
 
-// Use test key for testing environment
+// Use test key for testing environment or development
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY || 
-  (process.env.NODE_ENV === 'test' ? 'sk_test_123' : undefined)
+  (process.env.NODE_ENV === 'test' ? 'sk_test_123' : 
+   process.env.NODE_ENV === 'development' ? 'sk_test_dev_placeholder' : undefined)
 
 if (!stripeSecretKey) {
-  throw new Error('STRIPE_SECRET_KEY is not set')
+  console.warn('STRIPE_SECRET_KEY is not set - Stripe functionality will be disabled')
 }
 
-export const stripe = new Stripe(stripeSecretKey, {
-  apiVersion: '2024-12-18.acacia',
+export const stripe = stripeSecretKey ? new Stripe(stripeSecretKey, {
+  apiVersion: '2025-08-27.basil',
   typescript: true,
-})
+}) : null
 
 export const STRIPE_CONFIG = {
   STARTER_PRICE_ID: process.env.STRIPE_STARTER_PRICE_ID || 

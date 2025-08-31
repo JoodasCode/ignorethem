@@ -93,7 +93,8 @@ export class FreemiumLimits {
     
     if (userTier === 'free') {
       // Free tier: 1 stack generation lifetime
-      if (usage.stackGenerationsUsed >= limits.MAX_STACK_GENERATIONS_LIFETIME) {
+      const freeLimits = limits as typeof FreemiumLimits.FREE_TIER_LIMITS;
+      if (usage.stackGenerationsUsed >= freeLimits.MAX_STACK_GENERATIONS_LIFETIME) {
         return { 
           allowed: false, 
           reason: 'You\'ve used your free stack generation! Upgrade to Starter for 5 stacks per month.',
@@ -102,7 +103,8 @@ export class FreemiumLimits {
       }
     } else if (userTier === 'starter') {
       // Starter tier: 5 stacks per month
-      if (usage.stackGenerationsUsed >= limits.MAX_STACK_GENERATIONS_MONTHLY) {
+      const starterLimits = limits as typeof FreemiumLimits.STARTER_TIER_LIMITS;
+      if (usage.stackGenerationsUsed >= starterLimits.MAX_STACK_GENERATIONS_MONTHLY) {
         return { 
           allowed: false, 
           reason: 'You\'ve used all 5 stack generations this month. Upgrade to Pro for unlimited generations!',
@@ -156,12 +158,15 @@ export class FreemiumLimits {
       };
     }
 
-    if (limits.MAX_STACK_COMPARISONS !== -1 && currentComparisons >= limits.MAX_STACK_COMPARISONS) {
-      return { 
-        allowed: false, 
-        reason: `You can compare up to ${limits.MAX_STACK_COMPARISONS} stacks with your current plan.`,
-        upgradeRequired: userTier === 'starter'
-      };
+    if (userTier === 'starter') {
+      const starterLimits = this.STARTER_TIER_LIMITS;
+      if (currentComparisons >= starterLimits.MAX_STACK_COMPARISONS) {
+        return { 
+          allowed: false, 
+          reason: `You can compare up to ${starterLimits.MAX_STACK_COMPARISONS} stacks with your current plan.`,
+          upgradeRequired: true
+        };
+      }
     }
 
     return { allowed: true };

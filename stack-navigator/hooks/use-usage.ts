@@ -160,11 +160,11 @@ export function useUsage(): UsageHookReturn {
   const limits = FreemiumLimits.getTierLimits(tier)
   
   const stackGenerationsRemaining = state.usage 
-    ? limits.MAX_STACK_GENERATIONS_LIFETIME !== undefined
-      ? Math.max(0, limits.MAX_STACK_GENERATIONS_LIFETIME - state.usage.stack_generations_used)
-      : limits.MAX_STACK_GENERATIONS_MONTHLY === -1
+    ? 'MAX_STACK_GENERATIONS_MONTHLY' in limits
+      ? limits.MAX_STACK_GENERATIONS_MONTHLY === -1
         ? Infinity
         : Math.max(0, limits.MAX_STACK_GENERATIONS_MONTHLY - state.usage.stack_generations_used)
+      : Math.max(0, (limits as any).MAX_STACK_GENERATIONS_LIFETIME - state.usage.stack_generations_used)
     : tier === 'free' ? 1 : 5
 
   const conversationsRemaining = state.usage
@@ -191,8 +191,8 @@ export function useUsage(): UsageHookReturn {
     stackGenerations: {
       used: state.usage.stack_generations_used,
       limit: tier === 'free' 
-        ? limits.MAX_STACK_GENERATIONS_LIFETIME 
-        : limits.MAX_STACK_GENERATIONS_MONTHLY,
+        ? (limits as any).MAX_STACK_GENERATIONS_LIFETIME || 1
+        : (limits as any).MAX_STACK_GENERATIONS_MONTHLY || 5,
       unlimited: tier === 'pro'
     },
     conversations: {

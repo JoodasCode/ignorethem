@@ -17,6 +17,13 @@ export async function POST(request: NextRequest) {
   let event
 
   try {
+    if (!stripe) {
+      return NextResponse.json(
+        { error: 'Stripe not configured' },
+        { status: 500 }
+      )
+    }
+    
     event = stripe.webhooks.constructEvent(
       body,
       signature,
@@ -109,7 +116,7 @@ async function handlePaymentSucceeded(invoice: any) {
     // Payment succeeded - subscription should remain active
     // We can optionally send a receipt email or update analytics
     const subscriptionId = invoice.subscription
-    if (subscriptionId) {
+    if (subscriptionId && stripe) {
       const subscription = await stripe.subscriptions.retrieve(subscriptionId)
       const userId = subscription.metadata.userId
       if (userId) {
@@ -129,7 +136,7 @@ async function handlePaymentFailed(invoice: any) {
   try {
     // Payment failed - subscription may be past due
     const subscriptionId = invoice.subscription
-    if (subscriptionId) {
+    if (subscriptionId && stripe) {
       const subscription = await stripe.subscriptions.retrieve(subscriptionId)
       await subscriptionService.updateSubscriptionFromStripe(subscription)
       

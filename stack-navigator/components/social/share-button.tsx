@@ -142,7 +142,7 @@ export function ShareButton({
           <DropdownMenuSeparator />
           
           {/* Native Share (if supported) */}
-          {navigator.share && (
+          {typeof navigator !== 'undefined' && 'share' in navigator && (
             <>
               <DropdownMenuItem onClick={handleNativeShare}>
                 <Share2 className="mr-2 h-4 w-4" />

@@ -37,6 +37,17 @@ export class PerformanceMonitor {
   }
 
   /**
+   * Get timer duration without ending it
+   */
+  static getTimerDuration(operation: string): number {
+    const startTime = this.timers.get(operation)
+    if (!startTime) {
+      return 0
+    }
+    return Date.now() - startTime
+  }
+
+  /**
    * Monitor memory usage
    */
   static checkMemoryUsage(operation: string): void {
@@ -74,6 +85,16 @@ export class PerformanceMonitor {
         console.log(`📈 ${operation} - Memory growth: +${growthMB}MB`)
       }
     }
+  }
+
+  /**
+   * Get current memory usage in MB
+   */
+  static getCurrentMemoryUsage(): number {
+    if (typeof process !== 'undefined' && process.memoryUsage) {
+      return Math.round(process.memoryUsage().heapUsed / 1024 / 1024)
+    }
+    return 0
   }
 }
 
@@ -149,7 +170,9 @@ export class OptimizationUtils {
       // Limit cache size to prevent memory leaks
       if (cache.size > 1000) {
         const firstKey = cache.keys().next().value
-        cache.delete(firstKey)
+        if (firstKey !== undefined) {
+          cache.delete(firstKey)
+        }
       }
       
       return result

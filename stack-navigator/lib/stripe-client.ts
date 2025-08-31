@@ -16,4 +16,4 @@ export const getStripe = () => {
   return stripePromise
 }
 
-export { Stripe }
+export type { Stripe }

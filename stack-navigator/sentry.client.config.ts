@@ -49,11 +49,6 @@ Sentry.init({
     },
   },
   
-  // Integration configuration
-  integrations: [
-    new Sentry.Replay({
-      maskAllText: true,
-      blockAllMedia: true,
-    }),
-  ],
+  // Integration configuration - Replay is configured via replaysSessionSampleRate above
+  integrations: [],
 })

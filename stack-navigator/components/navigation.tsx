@@ -43,14 +43,8 @@ export function Navigation() {
   }
 
   const getNavItems = () => {
-    // Simplified navigation - focus only on core features
-    const authenticatedItems = [
-      { href: "/chat", icon: LayoutDashboard, label: "Chat" },
-      { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    ]
-
-    // Only show navigation items for authenticated users
-    return isAuthenticated ? authenticatedItems : []
+    // Top nav should only have global/external links, not app navigation
+    return []
   }
 
   return (
@@ -68,18 +62,6 @@ export function Navigation() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
-            {getNavItems().map((item) => {
-              const Icon = item.icon
-              return (
-                <Button key={item.href} variant="ghost" asChild>
-                  <Link href={item.href} className="flex items-center space-x-2">
-                    <Icon className="w-4 h-4" />
-                    <span>{item.label}</span>
-                  </Link>
-                </Button>
-              )
-            })}
-            
             <Button variant="ghost" asChild>
               <Link href="https://github.com" className="flex items-center space-x-2">
                 <Github className="w-4 h-4" />
@@ -118,12 +100,7 @@ export function Navigation() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/dashboard" className="flex items-center">
-                      <LayoutDashboard className="mr-2 h-4 w-4" />
-                      <span>Dashboard</span>
-                    </Link>
-                  </DropdownMenuItem>
+
                   <DropdownMenuItem asChild>
                     <Link href="/profile" className="flex items-center">
                       <User className="mr-2 h-4 w-4" />
@@ -162,18 +139,6 @@ export function Navigation() {
         {isOpen && (
           <div className="md:hidden py-4 border-t">
             <div className="flex flex-col space-y-2">
-              {getNavItems().map((item) => {
-                const Icon = item.icon
-                return (
-                  <Button key={item.href} variant="ghost" asChild className="justify-start">
-                    <Link href={item.href} className="flex items-center space-x-2">
-                      <Icon className="w-4 h-4" />
-                      <span>{item.label}</span>
-                    </Link>
-                  </Button>
-                )
-              })}
-              
               <Button variant="ghost" asChild className="justify-start">
                 <Link href="https://github.com" className="flex items-center space-x-2">
                   <Github className="w-4 h-4" />

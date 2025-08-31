@@ -192,7 +192,7 @@ export function UserProfile() {
 
             <div className="space-y-2">
               <Label htmlFor="theme">Theme Preference</Label>
-              <Select value={theme} onValueChange={setTheme}>
+              <Select value={theme} onValueChange={(value) => setTheme(value as 'light' | 'dark' | 'system')}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>

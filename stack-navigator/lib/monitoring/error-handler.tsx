@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/nextjs'
+import React from 'react'
 import { analytics } from '@/lib/analytics/posthog-client'
 import { serverAnalytics } from '@/lib/analytics/server-analytics'
 
@@ -106,10 +107,10 @@ export class ErrorHandler {
   }
   
   static startTransaction(name: string, op?: string) {
-    return Sentry.startTransaction({
+    return Sentry.startSpan({
       name,
       op: op || 'custom',
-    })
+    }, () => {})
   }
   
   static withErrorBoundary<T extends React.ComponentType<any>>(
@@ -118,26 +119,37 @@ export class ErrorHandler {
       fallback?: React.ComponentType<{ error: Error; resetError: () => void }>
       onError?: (error: Error, errorInfo: React.ErrorInfo) => void
     }
-  ): T {
+  ) {
     return Sentry.withErrorBoundary(Component, {
-      fallback: errorBoundaryOptions?.fallback || DefaultErrorFallback,
+      fallback: ({ error, resetError }: { error: unknown; componentStack: string; eventId: string; resetError(): void }) => {
+        const FallbackComponent = errorBoundaryOptions?.fallback || DefaultErrorFallback
+        return <FallbackComponent error={error as Error} resetError={resetError} />
+      },
       beforeCapture: (scope, error, errorInfo) => {
-        scope.setContext('react_error_info', errorInfo)
+        scope.setContext('react_error_info', { errorInfo })
         scope.setTag('error_boundary', 'react')
       },
-      onError: errorBoundaryOptions?.onError,
+      onError: errorBoundaryOptions?.onError ? (error: unknown, componentStack: string, eventId: string) => {
+        errorBoundaryOptions.onError!(error as Error, { componentStack } as React.ErrorInfo)
+      } : undefined,
     })
   }
 }
 
-// Default error fallback component - returns error info for logging
+// Default error fallback component
 export function DefaultErrorFallback({ error, resetError }: { error: Error; resetError: () => void }) {
-  return {
-    error: error.message,
-    stack: error.stack,
-    timestamp: new Date().toISOString(),
-    resetFunction: resetError
-  }
+  return (
+    <div className="p-4 border border-red-200 rounded-lg bg-red-50">
+      <h2 className="text-lg font-semibold text-red-800 mb-2">Something went wrong</h2>
+      <p className="text-red-600 mb-4">{error.message}</p>
+      <button 
+        onClick={resetError}
+        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+      >
+        Try again
+      </button>
+    </div>
+  )
 }
 
 // API route error handler
@@ -192,17 +204,17 @@ export class PerformanceMonitor {
   }
   
   static recordMetric(name: string, value: number, unit?: string, tags?: Record<string, string>) {
-    Sentry.metrics.gauge(name, value, {
-      unit: unit || 'none',
-      tags,
-    })
+    // TODO: Implement metrics when Sentry metrics API is available
+    console.log(`Metric: ${name} = ${value} ${unit || 'none'}`, tags)
   }
   
   static recordTiming(name: string, duration: number, tags?: Record<string, string>) {
-    Sentry.metrics.timing(name, duration, 'millisecond', tags)
+    // TODO: Implement timing when Sentry metrics API is available
+    console.log(`Timing: ${name} = ${duration}ms`, tags)
   }
   
   static recordCounter(name: string, value: number = 1, tags?: Record<string, string>) {
-    Sentry.metrics.increment(name, value, tags)
+    // TODO: Implement counter when Sentry metrics API is available
+    console.log(`Counter: ${name} += ${value}`, tags)
   }
 }

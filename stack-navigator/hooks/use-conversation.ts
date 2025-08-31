@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useChat } from 'ai/react';
 import { apiClient, handleApiResponse } from '@/lib/api-client';
 import { 
   ConversationState, 
@@ -20,7 +19,7 @@ export interface UseConversationReturn {
   conversationState: ConversationState;
   
   // Actions
-  sendMessage: () => void;
+  sendMessage: () => Promise<void>;
   generateRecommendations: () => Promise<void>;
   collectEmail: (email: string, projectName?: string) => Promise<boolean>;
   
@@ -45,55 +44,14 @@ export function useConversation(): UseConversationReturn {
   const [recommendations, setRecommendations] = useState<TechStackRecommendations | null>(null);
   const [projectAnalysis, setProjectAnalysis] = useState<ProjectAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  // Initialize chat with Vercel AI SDK
-  const {
-    messages,
-    input,
-    setInput,
-    handleSubmit,
-    isLoading,
-    append,
-  } = useChat({
-    api: '/api/chat',
-    onError: (error) => {
-      setError(error.message);
-    },
-    onFinish: (message) => {
-      // Update conversation state when AI responds
-      const newMessage: ChatMessage = {
-        id: message.id,
-        role: 'assistant',
-        content: message.content,
-        timestamp: new Date(),
-      };
-      
-      updateConversationState({
-        messages: [...conversationState.messages, newMessage],
-      });
-    },
-  });
+  const [input, setInput] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   // Initialize session on mount
   useEffect(() => {
     initializeSession();
   }, []);
 
-  // Sync messages with conversation state
-  useEffect(() => {
-    if (messages.length > 0) {
-      const chatMessages: ChatMessage[] = messages.map(msg => ({
-        id: msg.id,
-        role: msg.role as 'user' | 'assistant',
-        content: msg.content,
-        timestamp: new Date(),
-      }));
-
-      updateConversationState({
-        messages: chatMessages,
-      });
-    }
-  }, [messages]);
 
   const initializeSession = async () => {
     const response = await apiClient.createSession();
@@ -129,8 +87,11 @@ export function useConversation(): UseConversationReturn {
     [sessionId, conversationState]
   );
 
-  const sendMessage = useCallback(() => {
+  const sendMessage = useCallback(async () => {
     if (!input.trim()) return;
+
+    setIsLoading(true);
+    setError(null);
 
     // Add user message to conversation state
     const userMessage: ChatMessage = {
@@ -140,17 +101,76 @@ export function useConversation(): UseConversationReturn {
       timestamp: new Date(),
     };
 
+    const updatedMessages = [...conversationState.messages, userMessage];
+    
     updateConversationState({
-      messages: [...conversationState.messages, userMessage],
+      messages: updatedMessages,
       isGenerating: true,
     });
 
-    // Send message through Vercel AI SDK
-    handleSubmit();
-  }, [input, handleSubmit, conversationState, updateConversationState]);
+    // Clear input
+    setInput('');
+
+    try {
+      // Send to chat API
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          messages: updatedMessages.map(msg => ({
+            role: msg.role,
+            content: msg.content
+          }))
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send message');
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        throw new Error('No response body');
+      }
+
+      let aiResponse = '';
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        
+        const chunk = decoder.decode(value);
+        aiResponse += chunk;
+      }
+
+      // Add AI response to conversation
+      const aiMessage: ChatMessage = {
+        id: `ai_${Date.now()}`,
+        role: 'assistant',
+        content: aiResponse,
+        timestamp: new Date(),
+      };
+
+      updateConversationState({
+        messages: [...updatedMessages, aiMessage],
+        isGenerating: false,
+      });
+
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'Failed to send message');
+      updateConversationState({
+        isGenerating: false,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [input, conversationState, updateConversationState]);
 
   const generateRecommendations = async () => {
-    if (!sessionId || messages.length === 0) {
+    if (!sessionId || conversationState.messages.length === 0) {
       setError('No conversation to analyze');
       return;
     }

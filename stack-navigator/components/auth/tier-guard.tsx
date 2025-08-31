@@ -204,10 +204,18 @@ export function TierGuard({
           </div>
         )}
         <UpgradePrompt 
-          isOpen={showUpgradePrompt} 
-          onClose={() => setShowUpgradePrompt(false)}
-          requiredTier={requiredTier}
-          feature={feature}
+          open={showUpgradePrompt} 
+          onOpenChange={setShowUpgradePrompt}
+          prompt={{
+            title: `Upgrade to ${requiredTier.charAt(0).toUpperCase() + requiredTier.slice(1)}`,
+            message: `${feature || 'This feature'} requires a ${requiredTier} subscription.`,
+            targetTier: requiredTier,
+            pricing: { monthly: requiredTier === 'starter' ? 4.99 : 19.99 },
+            benefits: requiredTier === 'starter' 
+              ? ['5 stack generations per month', 'Unlimited conversations', 'Priority support']
+              : ['Unlimited stack generations', 'Advanced features', 'Priority support'],
+            ctaText: `Upgrade to ${requiredTier.charAt(0).toUpperCase() + requiredTier.slice(1)}`
+          }}
         />
       </>
     )

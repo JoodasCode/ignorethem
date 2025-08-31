@@ -42,12 +42,12 @@ export class FeatureFlagManager {
 
   static getUpgradePromptTiming(): 'immediate' | 'delayed' | 'on-limit' {
     const variant = this.getVariant(FEATURE_FLAGS.UPGRADE_PROMPT_TIMING)
-    return (variant as string) || 'on-limit'
+    return (variant as 'immediate' | 'delayed' | 'on-limit') || 'on-limit'
   }
 
   static getPricingVariant(): 'standard' | 'discount' | 'annual' {
     const variant = this.getVariant(FEATURE_FLAGS.PRICING_TEST)
-    return (variant as string) || 'standard'
+    return (variant as 'standard' | 'discount' | 'annual') || 'standard'
   }
 
   static shouldUseNewChatInterface(): boolean {
@@ -60,7 +60,7 @@ export class FeatureFlagManager {
 
   static getLandingPageVariant(): 'original' | 'variant-a' | 'variant-b' {
     const variant = this.getVariant(FEATURE_FLAGS.LANDING_PAGE_VARIANT)
-    return (variant as string) || 'original'
+    return (variant as 'original' | 'variant-a' | 'variant-b') || 'original'
   }
 
   static getCTAButtonText(): string {
@@ -78,7 +78,7 @@ export class FeatureFlagManager {
 
   static getSignupFlowVariant(): 'standard' | 'simplified' | 'social-first' {
     const variant = this.getVariant(FEATURE_FLAGS.SIGNUP_FLOW_VARIANT)
-    return (variant as string) || 'standard'
+    return (variant as 'standard' | 'simplified' | 'social-first') || 'standard'
   }
 
   // Feature availability checks

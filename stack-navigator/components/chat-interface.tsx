@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input, Textarea } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
@@ -24,22 +25,15 @@ import {
   X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-
-interface Message {
-  id: string
-  role: "user" | "assistant"
-  content: string
-  timestamp: Date
-  recommendations?: TechRecommendation[]
-}
+import { useAuth } from "@/hooks/use-auth"
+import { useUserSession } from "@/hooks/use-user-session"
+import { useRealtimeChat } from "@/hooks/use-realtime-chat"
 
 interface TechRecommendation {
   category: string
   technology: string
   reasoning: string
 }
-
-type ConversationPhase = "discovery" | "requirements" | "constraints" | "recommendation" | "refinement" | "generation"
 
 interface QuickStartOption {
   id: string
@@ -77,23 +71,44 @@ const quickStartOptions: QuickStartOption[] = [
 ]
 
 export function ChatInterface() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      role: "assistant",
-      content:
-        "Hey! I'm here to help you build the perfect tech stack for your project. Let me ask a few key questions to understand what you need:\n\n• What type of application are you building?\n• Are you a solo founder or do you have a team?\n• What's your timeline - need to ship ASAP or have time to build properly?\n• What's your technical background with modern web development?\n\nFeel free to answer in your own words - I'll ask follow-ups based on what you tell me!",
-      timestamp: new Date(),
-    },
-  ])
+  const { user } = useUserSession()
+  const searchParams = useSearchParams()
+  const conversationId = searchParams.get('conversation')
+  
+  const {
+    messages,
+    conversation,
+    isLoading,
+    isStreaming,
+    streamingMessage,
+    sendMessage,
+    loadConversation,
+    createConversation,
+    updateConversationPhase
+  } = useRealtimeChat(conversationId || undefined)
+
   const [input, setInput] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
   const [showStackSummary, setShowStackSummary] = useState(false)
-  const [conversationPhase, setConversationPhase] = useState<ConversationPhase>("discovery")
   const [showQuickStart, setShowQuickStart] = useState(true)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
-  const [isTyping, setIsTyping] = useState(false)
+
+  // Initialize conversation if none exists
+  useEffect(() => {
+    if (!conversationId && !conversation && user) {
+      createConversation().then((newConversationId) => {
+        if (newConversationId) {
+          // Update URL with new conversation ID
+          const url = new URL(window.location.href)
+          url.searchParams.set('conversation', newConversationId)
+          window.history.replaceState({}, '', url.toString())
+        }
+      })
+    }
+  }, [conversationId, conversation, user, createConversation])
+
+  // Show welcome message for new conversations
+  const shouldShowWelcome = conversation && messages.length === 0 && !isLoading && !isStreaming
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -113,116 +128,26 @@ export function ChatInterface() {
     return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
   }
 
-  const handleQuickStart = (option: QuickStartOption) => {
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: option.prompt,
-      timestamp: new Date(),
-    }
-
-    setMessages((prev) => [...prev, userMessage])
+  const handleQuickStart = async (option: QuickStartOption) => {
+    if (!conversation) return
+    
     setShowQuickStart(false)
-    setIsLoading(true)
-
-    // Simulate AI response based on quick start selection
-    setTimeout(() => {
-      const aiResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: getQuickStartResponse(option.id),
-        timestamp: new Date(),
-      }
-      setMessages((prev) => [...prev, aiResponse])
-      setConversationPhase("requirements")
-      setIsLoading(false)
-    }, 1500)
+    await sendMessage(option.prompt)
   }
 
   const handleSend = async () => {
-    if (!input.trim()) return
+    if (!input.trim() || !conversation) return
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: input,
-      timestamp: new Date(),
-    }
-
-    setMessages((prev) => [...prev, userMessage])
+    const currentInput = input
     setInput("")
     setShowQuickStart(false)
-    setIsTyping(true)
-
-    setTimeout(() => {
-      setIsTyping(false)
-      setIsLoading(true)
-    }, 800)
-
-    // Simulate AI response
-    setTimeout(() => {
-      const aiResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: getAIResponse(input),
-        timestamp: new Date(),
-      }
-      setMessages((prev) => [...prev, aiResponse])
-      setIsLoading(false)
-
-      // Update conversation phase based on content
-      updateConversationPhase(input)
-    }, 2300)
+    
+    await sendMessage(currentInput)
   }
 
-  const getQuickStartResponse = (optionId: string): string => {
-    switch (optionId) {
-      case "saas":
-        return "Perfect! A SaaS with validation focus. Now let's dive deeper:\n\n• Need user accounts and team management?\n• Any real-time features (live updates, collaboration)?\n• Planning to charge from day one?\n• What's your technical background - comfortable with React/backend development?\n\nThis helps me recommend the right balance of speed vs. flexibility."
-      case "ecommerce":
-        return "Great choice! E-commerce has some specific needs. Let me understand better:\n\n• What type of products - physical goods, digital, or both?\n• Need inventory management or dropshipping?\n• Target audience - B2C consumers or B2B wholesale?\n• Any specific payment methods or regions to support?\n\nThis will help me suggest the best commerce platform and payment setup."
-      case "internal":
-        return "Smart! Internal tools let you move fast since you control the users. Quick questions:\n\n• How many team members will use this?\n• Need real-time collaboration features?\n• Any existing systems to integrate with?\n• What's your team's technical expertise?\n\nInternal tools can be simpler since you don't need public-facing polish - let's optimize for speed!"
-      default:
-        return "That's a great starting point! Let me ask some follow-up questions to understand your specific needs better."
-    }
-  }
 
-  const getAIResponse = (userInput: string): string => {
-    const input_lower = userInput.toLowerCase()
 
-    if (input_lower.includes("b2b") || input_lower.includes("saas")) {
-      return "Perfect! A B2B SaaS with validation focus. Let me dive deeper:\n\n**Key Questions:**\n• Do you need user accounts and teams?\n• Any real-time features (live updates, collaboration)?\n• Planning to charge from day one?\n• What's your technical background with `React` and backend development?\n\n**Why this matters:** This helps me recommend the right balance of speed vs. flexibility for your validation phase."
-    }
-
-    if (input_lower.includes("yes") && input_lower.includes("team")) {
-      return "Excellent! Based on your team needs, here's my thinking:\n\n**Recommended Stack:**\n• `Next.js` - familiar React, built-in backend\n• `Clerk` - handles teams/orgs out of the box\n• `Supabase` - real-time ready, easy backend\n• `Stripe` - fastest path to revenue\n\n**Cost estimate:** ~$0-50/month initially, ~$200/month at 1K users\n**Setup time:** ~45 minutes\n\nThis stack lets you focus on your core product logic instead of auth/payment plumbing. Sound good, or have concerns?"
-    }
-
-    if (input_lower.includes("concern") || input_lower.includes("worried")) {
-      return "Smart concern! Here's the reality check:\n\n**Migration Path Analysis:**\nFor B2B SaaS, `Clerk`'s org management is genuinely hard to replicate. You'd spend 2-3 weeks building team invites, role management, SSO, etc.\n\n**My recommendation:** Use Clerk now, migrate later if needed. Time-to-market > theoretical lock-in for validation stage.\n\n**Alternative:** If you're really concerned, `NextAuth.js` + custom org logic, but expect 2x development time.\n\nStill concerned, or shall we proceed with the recommended stack?"
-    }
-
-    return "That's a great point! Let me help you think through the best approach for your specific situation. What's your main priority right now - speed to market, cost optimization, or technical flexibility?"
-  }
-
-  const updateConversationPhase = (userInput: string) => {
-    const input_lower = userInput.toLowerCase()
-
-    if (input_lower.includes("concern") || input_lower.includes("worried") || input_lower.includes("alternative")) {
-      setConversationPhase("refinement")
-    } else if (
-      input_lower.includes("sounds good") ||
-      input_lower.includes("proceed") ||
-      input_lower.includes("let's go")
-    ) {
-      setConversationPhase("recommendation")
-    } else if (conversationPhase === "discovery") {
-      setConversationPhase("requirements")
-    }
-  }
-
-  const getPhaseInfo = (phase: ConversationPhase) => {
+  const getPhaseInfo = (phase: string) => {
     switch (phase) {
       case "discovery":
         return { label: "Discovery", description: "Understanding your project", timeLeft: "3-4 questions" }
@@ -236,6 +161,8 @@ export function ChatInterface() {
         return { label: "Refinement", description: "Addressing concerns", timeLeft: "Final touches" }
       case "generation":
         return { label: "Generation", description: "Creating your project", timeLeft: "Complete" }
+      default:
+        return { label: "Discovery", description: "Understanding your project", timeLeft: "3-4 questions" }
     }
   }
 
@@ -244,7 +171,7 @@ export function ChatInterface() {
   }
 
   if (showStackSummary) {
-    return <StackSummary onBack={() => setShowStackSummary(false)} />
+    return <StackSummary onBack={() => setShowStackSummary(false)} conversation={conversation} />
   }
 
   const formatMessageContent = (content: string) => {
@@ -313,15 +240,62 @@ export function ChatInterface() {
 
             <div className="text-right">
               <Badge variant="secondary" className="mb-1 bg-primary/10 text-primary border-primary/20 text-xs">
-                {getPhaseInfo(conversationPhase).label}
+                {getPhaseInfo(conversation?.phase || 'discovery').label}
               </Badge>
-              <p className="text-xs text-muted-foreground">{getPhaseInfo(conversationPhase).description}</p>
+              <p className="text-xs text-muted-foreground">{getPhaseInfo(conversation?.phase || 'discovery').description}</p>
             </div>
           </div>
         </div>
 
         <div className="flex-1 overflow-y-auto">
           <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+            {/* Welcome message for new conversations */}
+            {shouldShowWelcome && (
+              <div className="flex gap-4 justify-start">
+                <Avatar className="w-8 h-8 flex-shrink-0 border border-primary/30">
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
+                    <Bot className="w-4 h-4" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="space-y-1 max-w-[85%]">
+                  <div className="text-xs text-muted-foreground flex items-center gap-2">
+                    <span>Senior Architect</span>
+                    <span>{formatTime(new Date())}</span>
+                  </div>
+                  <div className="bg-muted/50 rounded-2xl px-4 py-3 shadow-sm">
+                    <div className="space-y-3">
+                      <p className="text-sm leading-relaxed">
+                        Hey {user?.name || 'there'}! I'm here to help you build the perfect tech stack for your project.
+                      </p>
+                      <p className="text-sm leading-relaxed">
+                        Let me ask a few key questions to understand what you need:
+                      </p>
+                      <ul className="space-y-2 ml-4">
+                        <li className="flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
+                          <span className="text-sm leading-relaxed">What type of application are you building?</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
+                          <span className="text-sm leading-relaxed">Are you a solo founder or do you have a team?</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
+                          <span className="text-sm leading-relaxed">What's your timeline - need to ship ASAP or have time to build properly?</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0" />
+                          <span className="text-sm leading-relaxed">What's your technical background with modern web development?</span>
+                        </li>
+                      </ul>
+                      <p className="text-sm leading-relaxed">
+                        Feel free to answer in your own words - I'll ask follow-ups based on what you tell me!
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
             {messages.map((message, index) => {
               const isConsecutive = index > 0 && messages[index - 1].role === message.role
               return (
@@ -356,7 +330,7 @@ export function ChatInterface() {
                         )}
                       >
                         <span>{message.role === "assistant" ? "Senior Architect" : "You"}</span>
-                        <span>{formatTime(message.timestamp)}</span>
+                        <span>{formatTime(new Date(message.created_at))}</span>
                       </div>
                     )}
 
@@ -406,21 +380,6 @@ export function ChatInterface() {
                               )
                             }
                           })}
-
-                          {/* Quick action buttons for AI messages */}
-                          {message.content.includes("?") && (
-                            <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-border/50">
-                              <Button size="sm" variant="outline" className="text-xs h-7 bg-transparent">
-                                Tell me more
-                              </Button>
-                              <Button size="sm" variant="outline" className="text-xs h-7 bg-transparent">
-                                Show alternatives
-                              </Button>
-                              <Button size="sm" variant="outline" className="text-xs h-7 bg-transparent">
-                                Skip to recommendations
-                              </Button>
-                            </div>
-                          )}
                         </div>
                       ) : (
                         <p className="text-sm leading-relaxed">{message.content}</p>
@@ -443,8 +402,34 @@ export function ChatInterface() {
               )
             })}
 
+            {/* Streaming message */}
+            {isStreaming && streamingMessage && (
+              <div className="flex gap-4 justify-start">
+                <Avatar className="w-8 h-8 flex-shrink-0 border border-primary/30">
+                  <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
+                    <Bot className="w-4 h-4" />
+                  </AvatarFallback>
+                </Avatar>
+                <div className="space-y-1 max-w-[85%]">
+                  <div className="text-xs text-muted-foreground flex items-center gap-2">
+                    <span>Senior Architect</span>
+                    <span>{formatTime(new Date())}</span>
+                  </div>
+                  <div className="bg-muted/50 rounded-2xl px-4 py-3 shadow-sm">
+                    <div className="space-y-3">
+                      {streamingMessage.split("\n\n").map((paragraph, pIndex) => (
+                        <p key={pIndex} className="text-sm leading-relaxed">
+                          {highlightTechnicalTerms(paragraph)}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Typing indicator */}
-            {isTyping && (
+            {isStreaming && !streamingMessage && (
               <div className="flex gap-4 justify-start">
                 <Avatar className="w-8 h-8 flex-shrink-0 border border-primary/30">
                   <AvatarFallback className="bg-gradient-to-br from-primary to-primary/80 text-primary-foreground">
@@ -536,18 +521,18 @@ export function ChatInterface() {
                       handleSend()
                     }
                   }}
-                  disabled={isLoading || isTyping}
+                  disabled={isLoading || isStreaming}
                   className="min-h-[60px] max-h-[120px] resize-none text-sm leading-relaxed border focus:border-primary/50 bg-background rounded-xl"
                   rows={2}
                 />
               </div>
               <Button
                 onClick={handleSend}
-                disabled={isLoading || isTyping || !input.trim()}
+                disabled={isLoading || isStreaming || !input.trim()}
                 size="lg"
                 className="px-4 h-[60px] rounded-xl bg-primary hover:bg-primary/90"
               >
-                <Send className="w-4 h-4" />
+                {isStreaming ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </Button>
             </div>
           </div>
@@ -556,20 +541,7 @@ export function ChatInterface() {
     </div>
   )
 
-  function getProgressPercentage() {
-    switch (conversationPhase) {
-      case "discovery":
-        return 25
-      case "requirements":
-        return 50
-      case "recommendation":
-        return 75
-      case "generation":
-        return 100
-      default:
-        return 0
-    }
-  }
+
 
   function highlightTechnicalTerms(text: string) {
     return text.split(/(\b(?:React|Next\.js|Clerk|Supabase|Stripe|PostHog|Resend)\b)/).map((part, index) => {
@@ -591,12 +563,60 @@ function StackSummary({ onBack }: { onBack: () => void }) {
   const [showDownload, setShowDownload] = useState(false)
   const [expandedTech, setExpandedTech] = useState<string | null>(null)
 
-  const handleGenerate = () => {
+  const handleGenerate = async () => {
     setIsGenerating(true)
-    setTimeout(() => {
+    
+    try {
+      // Mock selections based on the tech stack shown in the UI
+      // In a real implementation, these would come from the conversation context
+      const selections = {
+        framework: 'nextjs' as const,
+        authentication: 'clerk' as const,
+        database: 'supabase' as const,
+        hosting: 'vercel' as const,
+        payments: 'stripe' as const,
+        analytics: 'posthog' as const,
+        email: 'resend' as const,
+        monitoring: 'sentry' as const,
+        ui: 'shadcn' as const
+      }
+
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          projectName,
+          selections,
+          conversationId: conversation?.id
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to generate stack')
+      }
+
+      // The response is a ZIP file, trigger download
+      const blob = await response.blob()
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `${projectName}.zip`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+
       setIsGenerating(false)
       setShowDownload(true)
-    }, 3000)
+    } catch (error) {
+      console.error('Error generating stack:', error)
+      setIsGenerating(false)
+      // You might want to show an error message to the user here
+      alert('Failed to generate stack. Please try again.')
+    }
   }
 
   const techStack = [

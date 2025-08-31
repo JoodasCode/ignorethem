@@ -15,12 +15,12 @@ const TechStackSchema = z.object({
     email: z.enum(['resend', 'postmark', 'sendgrid', 'none']),
     monitoring: z.enum(['sentry', 'bugsnag', 'none']),
   }),
-  reasoning: z.record(z.string()),
-  alternatives: z.record(z.array(z.string())),
-  migrationPaths: z.record(z.string()),
+  reasoning: z.record(z.string(), z.string()),
+  alternatives: z.record(z.string(), z.array(z.string())),
+  migrationPaths: z.record(z.string(), z.string()),
   estimatedCosts: z.object({
     monthly: z.string(),
-    breakdown: z.record(z.string()),
+    breakdown: z.record(z.string(), z.string()),
   }),
 });
 

@@ -788,6 +788,7 @@ export class CodeGenerator {
         id: 'fallback-base',
         name: 'Fallback Base Template',
         version: '0.0.0',
+        description: 'Minimal fallback template',
         category: 'base',
         dependencies: [],
         setupTime: 5,

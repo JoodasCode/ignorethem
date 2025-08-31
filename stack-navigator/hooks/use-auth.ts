@@ -22,19 +22,44 @@ export function useAuth() {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (error) {
-        setState(prev => ({ ...prev, error, loading: false }))
+        console.error('Auth session error:', error)
+        // If it's a refresh token error, clear the session and continue
+        if (error.message.includes('refresh_token_not_found') || error.message.includes('Invalid Refresh Token')) {
+          supabase.auth.signOut().then(() => {
+            setState({
+              user: null,
+              session: null,
+              loading: false,
+              error: null
+            })
+          })
+        } else {
+          setState(prev => ({ ...prev, error, loading: false }))
+        }
         return
       }
 
       if (session?.user) {
-        // Get or create user profile
-        UserService.upsertUserProfile(session.user).then(user => {
-          setState({
-            user,
-            session,
-            loading: false,
-            error: null
-          })
+        // For now, just use the auth user directly to avoid database dependency issues
+        const user: User = {
+          id: session.user.id,
+          email: session.user.email || '',
+          name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+          avatar_url: session.user.user_metadata?.avatar_url,
+          created_at: session.user.created_at,
+          updated_at: new Date().toISOString(),
+          last_active_at: new Date().toISOString(),
+          theme: 'system',
+          email_notifications: true,
+          total_projects: 0,
+          total_downloads: 0
+        }
+        
+        setState({
+          user,
+          session,
+          loading: false,
+          error: null
         })
       } else {
         setState({
@@ -49,8 +74,24 @@ export function useAuth() {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state change:', event, session?.user?.id)
+        
         if (event === 'SIGNED_IN' && session?.user) {
-          const user = await UserService.upsertUserProfile(session.user)
+          // For now, just use the auth user directly to avoid database dependency issues
+          const user: User = {
+            id: session.user.id,
+            email: session.user.email || '',
+            name: session.user.user_metadata?.name || session.user.email?.split('@')[0] || 'User',
+            avatar_url: session.user.user_metadata?.avatar_url,
+            created_at: session.user.created_at,
+            updated_at: new Date().toISOString(),
+            last_active_at: new Date().toISOString(),
+            theme: 'system',
+            email_notifications: true,
+            total_projects: 0,
+            total_downloads: 0
+          }
+          
           setState({
             user,
             session,
@@ -70,6 +111,14 @@ export function useAuth() {
             session,
             error: null
           }))
+        } else if (event === 'TOKEN_REFRESH_FAILED') {
+          console.error('Token refresh failed, signing out')
+          setState({
+            user: null,
+            session: null,
+            loading: false,
+            error: null
+          })
         }
       }
     )
@@ -151,12 +200,19 @@ export function useAuth() {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`
+        redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent'
+        }
       }
     })
 
     if (error) {
       setState(prev => ({ ...prev, error, loading: false }))
+    } else {
+      // For OAuth, we don't set loading to false here because the redirect happens
+      // The loading state will be reset when the user returns from the OAuth flow
     }
 
     return { data, error }

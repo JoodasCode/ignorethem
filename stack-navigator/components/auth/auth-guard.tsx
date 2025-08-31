@@ -9,23 +9,20 @@ import { Loader2 } from 'lucide-react'
 interface AuthGuardProps {
   children: React.ReactNode
   fallback?: React.ReactNode
-  redirectTo?: string
+  requireAuth?: boolean
 }
 
-export function AuthGuard({ children, fallback, redirectTo }: AuthGuardProps) {
+export function AuthGuard({ children, fallback, requireAuth = true }: AuthGuardProps) {
   const { isAuthenticated, loading } = useAuth()
   const [showAuthModal, setShowAuthModal] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      if (redirectTo) {
-        router.push(`/auth/signin?redirect_to=${encodeURIComponent(redirectTo)}`)
-      } else {
-        setShowAuthModal(true)
-      }
+    if (!loading && !isAuthenticated && requireAuth) {
+      // Show modal instead of redirecting to avoid redirect loops
+      setShowAuthModal(true)
     }
-  }, [isAuthenticated, loading, redirectTo, router])
+  }, [isAuthenticated, loading, requireAuth])
 
   // Show loading while checking auth
   if (loading) {
@@ -39,8 +36,8 @@ export function AuthGuard({ children, fallback, redirectTo }: AuthGuardProps) {
     )
   }
 
-  // Show auth modal if not authenticated and no redirect
-  if (!isAuthenticated && !redirectTo) {
+  // Show auth modal if not authenticated
+  if (!isAuthenticated && requireAuth) {
     return (
       <>
         {fallback || (

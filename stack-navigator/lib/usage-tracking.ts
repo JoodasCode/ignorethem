@@ -92,9 +92,9 @@ export class UsageTrackingService {
     let remainingCount: number | undefined
 
     if (tier === 'free') {
-      remainingCount = Math.max(0, limits.MAX_STACK_GENERATIONS_LIFETIME - usage.stack_generations_used)
+      remainingCount = Math.max(0, (limits as any).MAX_STACK_GENERATIONS_LIFETIME - usage.stack_generations_used)
     } else if (tier === 'starter') {
-      remainingCount = Math.max(0, limits.MAX_STACK_GENERATIONS_MONTHLY - usage.stack_generations_used)
+      remainingCount = Math.max(0, (limits as any).MAX_STACK_GENERATIONS_MONTHLY - usage.stack_generations_used)
     }
 
     return {
@@ -216,7 +216,7 @@ export class UsageTrackingService {
         period_start: now.toISOString(),
         period_end: periodEnd.toISOString(),
         stack_generations_used: 0,
-        stack_generations_limit: tier === 'free' ? limits.MAX_STACK_GENERATIONS_LIFETIME : limits.MAX_STACK_GENERATIONS_MONTHLY,
+        stack_generations_limit: tier === 'free' ? (limits as any).MAX_STACK_GENERATIONS_LIFETIME : (limits as any).MAX_STACK_GENERATIONS_MONTHLY,
         conversations_saved: 0,
         conversations_limit: limits.MAX_SAVED_CONVERSATIONS,
         messages_sent: 0,
@@ -254,7 +254,7 @@ export class UsageTrackingService {
         period_start: now.toISOString(),
         period_end: nextPeriodEnd.toISOString(),
         stack_generations_used: 0,
-        stack_generations_limit: limits.MAX_STACK_GENERATIONS_MONTHLY,
+        stack_generations_limit: (limits as any).MAX_STACK_GENERATIONS_MONTHLY,
         messages_sent: 0,
         updated_at: now.toISOString()
       })
@@ -356,7 +356,7 @@ export class UsageTrackingService {
       tier,
       stackGenerations: {
         used: usage.stack_generations_used,
-        limit: tier === 'free' ? limits.MAX_STACK_GENERATIONS_LIFETIME : limits.MAX_STACK_GENERATIONS_MONTHLY,
+        limit: tier === 'free' ? (limits as any).MAX_STACK_GENERATIONS_LIFETIME : (limits as any).MAX_STACK_GENERATIONS_MONTHLY,
         unlimited: tier === 'pro'
       },
       conversations: {

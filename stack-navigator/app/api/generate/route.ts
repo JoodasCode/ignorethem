@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { codeGenerator } from '@/lib/code-generator'
 import { ZipGeneratorService } from '@/lib/zip-generator'
 import { UsageTrackingService } from '@/lib/usage-tracking'
-import { createClient } from '@/lib/supabase'
+import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { z } from 'zod'
 
 // Request validation schema
@@ -25,10 +25,7 @@ const GenerateRequestSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     // Get user from session
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
+    const supabase = createServerSupabaseClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
@@ -100,6 +97,9 @@ export async function POST(request: NextRequest) {
     // Save project configuration to database
     await saveProjectConfig(user.id, generatedProject, conversationId)
 
+    // Save to user_generated_stacks table for profile page
+    await saveGeneratedStack(user.id, generatedProject, conversationId)
+
     // Return ZIP file as download
     if (!zipResult.zipBuffer) {
       throw new Error('Failed to generate ZIP file')
@@ -140,10 +140,7 @@ async function saveProjectConfig(
   conversationId?: string
 ) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
+    const supabase = createServerSupabaseClient()
     
     const { error } = await supabase
       .from('projects')
@@ -164,13 +161,78 @@ async function saveProjectConfig(
   }
 }
 
+/**
+ * Save generated stack to user_generated_stacks table for profile page
+ */
+async function saveGeneratedStack(
+  userId: string,
+  project: any,
+  conversationId?: string
+) {
+  try {
+    const supabase = createServerSupabaseClient()
+
+    // Extract technologies from selections
+    const technologies = Object.entries(project.selections)
+      .filter(([key, value]) => value && value !== 'none')
+      .map(([key, value]) => {
+        // Map selection keys to readable names
+        const techMap: Record<string, string> = {
+          framework: value === 'nextjs' ? 'Next.js' : value as string,
+          authentication: value === 'clerk' ? 'Clerk' : 
+                         value === 'supabase-auth' ? 'Supabase Auth' :
+                         value === 'nextauth' ? 'NextAuth.js' : value as string,
+          database: value === 'supabase' ? 'Supabase' :
+                   value === 'planetscale' ? 'PlanetScale' :
+                   value === 'neon' ? 'Neon' : value as string,
+          hosting: value === 'vercel' ? 'Vercel' :
+                  value === 'netlify' ? 'Netlify' :
+                  value === 'railway' ? 'Railway' :
+                  value === 'render' ? 'Render' : value as string,
+          payments: value === 'stripe' ? 'Stripe' :
+                   value === 'paddle' ? 'Paddle' : value as string,
+          analytics: value === 'posthog' ? 'PostHog' :
+                    value === 'plausible' ? 'Plausible' :
+                    value === 'ga4' ? 'Google Analytics' : value as string,
+          email: value === 'resend' ? 'Resend' :
+                value === 'postmark' ? 'Postmark' :
+                value === 'sendgrid' ? 'SendGrid' : value as string,
+          monitoring: value === 'sentry' ? 'Sentry' :
+                     value === 'bugsnag' ? 'Bugsnag' : value as string,
+          ui: value === 'shadcn' ? 'shadcn/ui' :
+              value === 'chakra' ? 'Chakra UI' :
+              value === 'mantine' ? 'Mantine' : value as string
+        }
+        return techMap[key] || value as string
+      })
+
+    // Generate stack description based on selections
+    const stackDescription = `Generated stack with ${technologies.slice(0, 3).join(', ')}${technologies.length > 3 ? ` and ${technologies.length - 3} more technologies` : ''}`
+
+    const { error } = await supabase
+      .from('user_generated_stacks')
+      .insert({
+        user_id: userId,
+        conversation_id: conversationId,
+        stack_name: project.name,
+        stack_description: stackDescription,
+        technologies: technologies,
+        generated_files: project.files || null, // Store generated files if available
+        download_count: 1 // Initial download
+      })
+
+    if (error) {
+      console.error('Failed to save generated stack:', error)
+    }
+  } catch (error) {
+    console.error('Error saving generated stack:', error)
+  }
+}
+
 // GET endpoint for checking generation limits
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
+    const supabase = createServerSupabaseClient()
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {

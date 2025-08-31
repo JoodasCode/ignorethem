@@ -172,25 +172,25 @@ export class CompareStacksService {
    */
   static async buildStackComparison(stack: PopularStack): Promise<StackComparison> {
     // Get performance metrics (mock data for now, would be real metrics in production)
-    const performanceMetrics = await this.getPerformanceMetrics(stack.stack_config)
+    const performanceMetrics = await this.getPerformanceMetrics(stack.stack_config as any)
     
     // Calculate compatibility score
-    const compatibilityScore = await this.calculateCompatibilityScore(stack.stack_config)
+    const compatibilityScore = await this.calculateCompatibilityScore(stack.stack_config as any)
     
     // Generate pros/cons based on stack configuration
-    const { pros, cons } = this.generateProsAndCons(stack.stack_config)
+    const { pros, cons } = this.generateProsAndCons(stack.stack_config as any)
     
     // Get use cases
-    const useCases = this.getUseCases(stack.stack_config)
+    const useCases = this.getUseCases(stack.stack_config as any)
     
     // Calculate setup complexity
-    const setupComplexity = this.calculateSetupComplexity(stack.stack_config)
+    const setupComplexity = this.calculateSetupComplexity(stack.stack_config as any)
     
     // Estimate costs
-    const costEstimate = this.estimateCosts(stack.stack_config)
+    const costEstimate = this.estimateCosts(stack.stack_config as any)
     
     // Calculate migration difficulty
-    const migrationDifficulty = this.calculateMigrationDifficulty(stack.stack_config)
+    const migrationDifficulty = this.calculateMigrationDifficulty(stack.stack_config as any)
 
     return {
       id: stack.id,
@@ -836,7 +836,7 @@ export class CompareStacksService {
       // Create project if project name provided
       let projectId: string | undefined
       if (projectName) {
-        projectId = await BrowseStacksService.useStack(stackId, projectName, userId, conversationId)
+        projectId = (await BrowseStacksService.useStack(stackId, projectName, userId, conversationId)) || undefined
         if (!projectId) {
           return { success: false, error: 'Failed to create project from stack' }
         }

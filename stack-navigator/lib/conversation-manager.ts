@@ -169,7 +169,7 @@ export class ConversationManager {
     const hasTimeline = !!this.context.timeline;
     const hasRequirements = this.context.specificRequirements && this.context.specificRequirements.length > 0;
 
-    return hasProjectType && (hasTeamInfo || hasTimeline || hasRequirements);
+    return hasProjectType && (hasTeamInfo || hasTimeline || !!hasRequirements);
   }
 
   getConversationSummary(): string {

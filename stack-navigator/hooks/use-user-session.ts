@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useAuth } from './use-auth'
 import type { User, Subscription, UsageTracking } from '@/lib/supabase'
 import type { SubscriptionTier } from '@/lib/stripe'
 
@@ -17,60 +18,78 @@ interface UseUserSessionReturn extends UserSession {
 }
 
 export function useUserSession(): UseUserSessionReturn {
+  const { user: authUser, loading: authLoading, isAuthenticated } = useAuth()
   const [session, setSession] = useState<UserSession>({
     user: null,
     subscription: null,
     tier: 'free' as SubscriptionTier,
     usage: null
   })
-  const [isLoading, setIsLoading] = useState(true)
+  const [additionalLoading, setAdditionalLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchSession = async () => {
+  const fetchAdditionalUserData = async (userId: string) => {
     try {
-      setIsLoading(true)
+      setAdditionalLoading(true)
       setError(null)
 
       const response = await fetch('/api/user/session')
       
       if (!response.ok) {
-        const errorText = await response.text()
-        console.error('Session fetch failed:', response.status, errorText)
-        throw new Error(`Failed to fetch session: ${response.status}`)
+        // If API fails, just use basic user data from auth
+        console.warn('Session API failed, using basic auth data')
+        setSession({
+          user: authUser,
+          subscription: null,
+          tier: 'free' as SubscriptionTier,
+          usage: null
+        })
+        return
       }
 
       const data = await response.json()
       setSession({
-        user: data.user,
+        user: data.user || authUser,
         subscription: data.subscription,
-        tier: data.tier,
+        tier: data.tier || 'free',
         usage: data.usage
       })
     } catch (err) {
-      console.error('Failed to fetch user session:', err)
+      console.warn('Failed to fetch additional user data:', err)
       setError(err instanceof Error ? err.message : 'Failed to fetch session')
       
-      // Reset session on error
+      // Fallback to basic auth user data
+      setSession({
+        user: authUser,
+        subscription: null,
+        tier: 'free' as SubscriptionTier,
+        usage: null
+      })
+    } finally {
+      setAdditionalLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (isAuthenticated && authUser) {
+      fetchAdditionalUserData(authUser.id)
+    } else {
+      // Reset session when not authenticated
       setSession({
         user: null,
         subscription: null,
         tier: 'free' as SubscriptionTier,
         usage: null
       })
-    } finally {
-      setIsLoading(false)
+      setError(null)
     }
-  }
-
-  useEffect(() => {
-    fetchSession()
-  }, [])
+  }, [isAuthenticated, authUser])
 
   return {
     ...session,
-    isLoading,
+    isLoading: authLoading || additionalLoading,
     error,
-    isAuthenticated: !!session.user,
-    refetch: fetchSession,
+    isAuthenticated,
+    refetch: () => authUser ? fetchAdditionalUserData(authUser.id) : Promise.resolve(),
   }
 }

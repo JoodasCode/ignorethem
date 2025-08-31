@@ -21,13 +21,14 @@ import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
 
 interface SharedProjectPageProps {
-  params: {
+  params: Promise<{
     token: string
-  }
+  }>
 }
 
 export async function generateMetadata({ params }: SharedProjectPageProps): Promise<Metadata> {
-  const project = await SocialService.getSharedProject(params.token)
+  const { token } = await params
+  const project = await SocialService.getSharedProject(token)
   
   if (!project) {
     return {
@@ -43,7 +44,7 @@ export async function generateMetadata({ params }: SharedProjectPageProps): Prom
       title: project.title,
       description: project.description || `Check out this awesome project: ${project.title}`,
       type: 'website',
-      url: `${process.env.NEXT_PUBLIC_APP_URL}/shared/${params.token}`,
+      url: `${process.env.NEXT_PUBLIC_APP_URL}/shared/${token}`,
     },
     twitter: {
       card: 'summary_large_image',
@@ -54,14 +55,15 @@ export async function generateMetadata({ params }: SharedProjectPageProps): Prom
 }
 
 export default async function SharedProjectPage({ params }: SharedProjectPageProps) {
-  const project = await SocialService.getSharedProject(params.token)
+  const { token } = await params
+  const project = await SocialService.getSharedProject(token)
 
   if (!project) {
     notFound()
   }
 
   const stackTechnologies = Object.keys(project.stack_config)
-  const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/shared/${params.token}`
+  const shareUrl = `${process.env.NEXT_PUBLIC_APP_URL}/shared/${token}`
 
   return (
     <div className="min-h-screen bg-background">

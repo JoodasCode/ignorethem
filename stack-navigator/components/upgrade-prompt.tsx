@@ -12,13 +12,13 @@ import {
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Check, Sparkles, Zap, Loader2 } from 'lucide-react'
-import { type UpgradePrompt } from '@/lib/usage-tracking'
+import { type UpgradePrompt as UpgradePromptType } from '@/lib/usage-tracking'
 import { useSubscription } from '@/hooks/use-subscription'
 
 interface UpgradePromptDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  prompt: UpgradePrompt
+  prompt: UpgradePromptType
   onUpgrade?: () => void
 }
 
@@ -140,10 +140,13 @@ export function UpgradePromptDialog({
 }
 
 interface InlineUpgradePromptProps {
-  prompt: UpgradePrompt
+  prompt: UpgradePromptType
   onUpgrade?: () => void
   compact?: boolean
 }
+
+// Export the main component as UpgradePrompt for backward compatibility
+export const UpgradePrompt = UpgradePromptDialog
 
 export function InlineUpgradePrompt({
   prompt,

@@ -1,11 +1,14 @@
 import { NextRequest } from 'next/server'
-import { supabase } from '@/lib/supabase'
+import { createServerSupabaseClient } from '@/lib/supabase-server'
 import { openai } from '@ai-sdk/openai'
 import { streamText } from 'ai'
 
 export async function POST(request: NextRequest) {
   try {
     const { conversationId, message, messages } = await request.json()
+
+    // Create server-side Supabase client
+    const supabase = createServerSupabaseClient()
 
     // Get conversation context
     const { data: conversation, error: conversationError } = await supabase
@@ -19,7 +22,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Save user message
-    const { data: userMessage, error: userMessageError } = await supabase
+    const { error: userMessageError } = await supabase
       .from('messages')
       .insert({
         conversation_id: conversationId,
@@ -27,8 +30,6 @@ export async function POST(request: NextRequest) {
         content: message,
         sequence_number: messages.length + 1
       })
-      .select()
-      .single()
 
     if (userMessageError) {
       console.error('Error saving user message:', userMessageError)
@@ -97,12 +98,11 @@ Address concerns, suggest alternatives, and explain migration paths.`
     })
 
     // Stream AI response
-    const result = await streamText({
+    const result = streamText({
       model: openai('gpt-4-turbo-preview'),
       system: getSystemPrompt(conversation.phase),
       messages: conversationHistory,
       temperature: 0.7,
-      maxTokens: 1000,
     })
 
     // Create a readable stream

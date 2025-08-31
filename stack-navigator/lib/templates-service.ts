@@ -484,12 +484,13 @@ export class TemplatesService {
         .order('created_at', { ascending: false })
 
       const activityCount = (activityData || []).reduce((acc, item) => {
-        const key = `${item.templates.name}-${item.action}`
+        const templateName = (item as any).templates?.name || 'Unknown'
+        const key = `${templateName}-${item.action}`
         const date = new Date(item.created_at).toISOString().split('T')[0]
         
         if (!acc[key]) {
           acc[key] = {
-            template_name: item.templates.name,
+            template_name: templateName,
             action: item.action,
             count: 0,
             date

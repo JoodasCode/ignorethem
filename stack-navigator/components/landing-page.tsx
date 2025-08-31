@@ -5,21 +5,28 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Zap, Shield, Rocket, Users, TrendingUp, Eye, User, Building } from "lucide-react"
 import Link from "next/link"
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { AuthModal } from "@/components/auth/auth-modal"
 import { useAuth } from "@/hooks/use-auth"
 
-export function LandingPage() {
+function LandingPageContent() {
   const [showAuthModal, setShowAuthModal] = useState(false)
   const { isAuthenticated } = useAuth()
   const searchParams = useSearchParams()
 
-  // Handle auth required redirect
+  // Handle auth required redirect and errors
   useEffect(() => {
     const authRequired = searchParams.get('auth')
+    const authError = searchParams.get('error')
+    
     if (authRequired === 'required') {
       setShowAuthModal(true)
+    }
+    
+    if (authError) {
+      // Show error message - you could add a toast notification here
+      console.error('Auth error:', authError)
     }
   }, [searchParams])
 
@@ -58,7 +65,10 @@ export function LandingPage() {
               <Button 
                 size="lg" 
                 className="text-lg px-8 py-6"
-                onClick={() => setShowAuthModal(true)}
+                onClick={() => {
+                  console.log('Get Started button clicked, opening auth modal')
+                  setShowAuthModal(true)
+                }}
               >
                 Get Started Free
                 <ArrowRight className="ml-2 w-5 h-5" />
@@ -439,5 +449,17 @@ export function LandingPage() {
         defaultTab="signup"
       />
     </div>
+  )
+}
+
+export function LandingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div>Loading...</div>
+      </div>
+    }>
+      <LandingPageContent />
+    </Suspense>
   )
 }
