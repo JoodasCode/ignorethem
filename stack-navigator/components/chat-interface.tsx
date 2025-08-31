@@ -39,7 +39,7 @@ interface TechRecommendation {
   reasoning: string
 }
 
-type ConversationPhase = "discovery" | "requirements" | "constraints" | "recommendation" | "refinement"
+type ConversationPhase = "discovery" | "requirements" | "constraints" | "recommendation" | "refinement" | "generation"
 
 interface QuickStartOption {
   id: string
@@ -234,6 +234,8 @@ export function ChatInterface() {
         return { label: "Recommendation", description: "Suggesting your stack", timeLeft: "Almost done" }
       case "refinement":
         return { label: "Refinement", description: "Addressing concerns", timeLeft: "Final touches" }
+      case "generation":
+        return { label: "Generation", description: "Creating your project", timeLeft: "Complete" }
     }
   }
 
@@ -493,7 +495,7 @@ export function ChatInterface() {
                       variant="outline"
                       size="sm"
                       className="justify-start gap-2 bg-transparent border-blue-300 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/30"
-                      onClick={() => handleQuickStart("Building a SaaS")}
+                      onClick={() => handleQuickStart(quickStartOptions.find(opt => opt.label === "Building a SaaS")!)}
                     >
                       <Building className="w-4 h-4" />
                       Building a SaaS
@@ -502,7 +504,7 @@ export function ChatInterface() {
                       variant="outline"
                       size="sm"
                       className="justify-start gap-2 bg-transparent border-blue-300 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/30"
-                      onClick={() => handleQuickStart("E-commerce")}
+                      onClick={() => handleQuickStart(quickStartOptions.find(opt => opt.label === "E-commerce")!)}
                     >
                       <ShoppingCart className="w-4 h-4" />
                       E-commerce
@@ -511,7 +513,7 @@ export function ChatInterface() {
                       variant="outline"
                       size="sm"
                       className="justify-start gap-2 bg-transparent border-blue-300 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/30"
-                      onClick={() => handleQuickStart("Internal Tool")}
+                      onClick={() => handleQuickStart(quickStartOptions.find(opt => opt.label === "Internal Tool")!)}
                     >
                       <Settings className="w-4 h-4" />
                       Internal Tool

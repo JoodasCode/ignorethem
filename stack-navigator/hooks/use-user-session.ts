@@ -34,7 +34,9 @@ export function useUserSession(): UseUserSessionReturn {
       const response = await fetch('/api/user/session')
       
       if (!response.ok) {
-        throw new Error('Failed to fetch session')
+        const errorText = await response.text()
+        console.error('Session fetch failed:', response.status, errorText)
+        throw new Error(`Failed to fetch session: ${response.status}`)
       }
 
       const data = await response.json()

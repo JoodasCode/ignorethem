@@ -1,42 +1,43 @@
-@import "tailwindcss";
-@import "tw-animate-css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@custom-variant dark (&:is(.dark *));
-
-/* Updated to Solar Dusk theme colors and fonts */
 :root {
-  --background: #fdfbf7;
-  --foreground: #4a3b33;
-  --card: #f8f4ee;
-  --card-foreground: #4a3b33;
-  --popover: #f8f4ee;
-  --popover-foreground: #4a3b33;
-  --primary: #b45309;
-  --primary-foreground: #ffffff;
-  --secondary: #e4c090;
-  --secondary-foreground: #57534e;
-  --muted: #f1e9da;
-  --muted-foreground: #78716c;
-  --accent: #f2daba;
-  --accent-foreground: #57534e;
-  --destructive: #991b1b;
-  --destructive-foreground: #ffffff;
-  --border: #e4d9bc;
-  --input: #e4d9bc;
-  --ring: #b45309;
-  --chart-1: #b45309;
-  --chart-2: #78716c;
-  --chart-3: #a16207;
-  --chart-4: #78716c;
-  --chart-5: #ca8a04;
-  --sidebar: #f1e9da;
-  --sidebar-foreground: #4a3b33;
-  --sidebar-primary: #b45309;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #a16207;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #e4d9bc;
-  --sidebar-ring: #b45309;
+  --background: 40 60% 98%;
+  --foreground: 21 18% 25%;
+  --card: 36 42% 95%;
+  --card-foreground: 21 18% 25%;
+  --popover: 36 42% 95%;
+  --popover-foreground: 21 18% 25%;
+  --primary: 26 90% 37%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 34 61% 73%;
+  --secondary-foreground: 33 5% 32%;
+  --muted: 39 45% 90%;
+  --muted-foreground: 25 5% 45%;
+  --accent: 34 68% 84%;
+  --accent-foreground: 33 5% 32%;
+  --destructive: 0 70% 35%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 44 43% 82%;
+  --input: 44 43% 82%;
+  --ring: 26 90% 37%;
+  --chart-1: 26 90% 37%;
+  --chart-2: 25 5% 45%;
+  --chart-3: 35 92% 33%;
+  --chart-4: 25 5% 45%;
+  --chart-5: 41 96% 40%;
+  --sidebar: 39 45% 90%;
+  --sidebar-foreground: 21 18% 25%;
+  --sidebar-primary: 26 90% 37%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 35 92% 33%;
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-border: 44 43% 82%;
+  --sidebar-ring: 26 90% 37%;
+  --font-sans: Oxanium, sans-serif;
+  --font-serif: Merriweather, serif;
+  --font-mono: Fira Code, monospace;
   --radius: 0.3rem;
   --shadow-2xs: 0px 2px 3px 0px hsl(28 18% 25% / 0.09);
   --shadow-xs: 0px 2px 3px 0px hsl(28 18% 25% / 0.09);
@@ -51,38 +52,41 @@
 }
 
 .dark {
-  --background: #1c1917;
-  --foreground: #f5f5f4;
-  --card: #292524;
-  --card-foreground: #f5f5f4;
-  --popover: #292524;
-  --popover-foreground: #f5f5f4;
-  --primary: #f97316;
-  --primary-foreground: #ffffff;
-  --secondary: #57534e;
-  --secondary-foreground: #e7e5e4;
-  --muted: #292524;
-  --muted-foreground: #a8a29e;
-  --accent: #1e4252;
-  --accent-foreground: #e7e5e4;
-  --destructive: #dc2626;
-  --destructive-foreground: #ffffff;
-  --border: #44403c;
-  --input: #44403c;
-  --ring: #f97316;
-  --chart-1: #f97316;
-  --chart-2: #0ea5e9;
-  --chart-3: #eab308;
-  --chart-4: #a8a29e;
-  --chart-5: #78716c;
-  --sidebar: #292524;
-  --sidebar-foreground: #f5f5f4;
-  --sidebar-primary: #f97316;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #0ea5e9;
-  --sidebar-accent-foreground: #0c2a4d;
-  --sidebar-border: #44403c;
-  --sidebar-ring: #f97316;
+  --background: 24 10% 10%;
+  --foreground: 60 5% 96%;
+  --card: 12 6% 15%;
+  --card-foreground: 60 5% 96%;
+  --popover: 12 6% 15%;
+  --popover-foreground: 60 5% 96%;
+  --primary: 25 95% 53%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 33 5% 32%;
+  --secondary-foreground: 20 6% 90%;
+  --muted: 12 6% 15%;
+  --muted-foreground: 24 5% 64%;
+  --accent: 198 46% 22%;
+  --accent-foreground: 20 6% 90%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 30 6% 25%;
+  --input: 30 6% 25%;
+  --ring: 25 95% 53%;
+  --chart-1: 25 95% 53%;
+  --chart-2: 199 89% 48%;
+  --chart-3: 45 94% 47%;
+  --chart-4: 24 5% 64%;
+  --chart-5: 25 5% 45%;
+  --sidebar: 12 6% 15%;
+  --sidebar-foreground: 60 5% 96%;
+  --sidebar-primary: 25 95% 53%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 199 89% 48%;
+  --sidebar-accent-foreground: 212 73% 17%;
+  --sidebar-border: 30 6% 25%;
+  --sidebar-ring: 25 95% 53%;
+  --font-sans: Oxanium, sans-serif;
+  --font-serif: Merriweather, serif;
+  --font-mono: Fira Code, monospace;
   --radius: 0.3rem;
   --shadow-2xs: 0px 2px 3px 0px hsl(0 0% 5% / 0.09);
   --shadow-xs: 0px 2px 3px 0px hsl(0 0% 5% / 0.09);
@@ -94,10 +98,17 @@
   --shadow-2xl: 0px 2px 3px 0px hsl(0 0% 5% / 0.45);
 }
 
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
 @theme inline {
-  --font-sans: var(--font-oxanium);
-  --font-serif: var(--font-merriweather);
-  --font-mono: var(--font-fira-code);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -122,10 +133,6 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -134,13 +141,22 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-}
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
 }

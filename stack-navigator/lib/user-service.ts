@@ -151,11 +151,67 @@ export class UserService {
   static async updateLastActive(userId: string): Promise<void> {
     const { error } = await supabase
       .from('users')
-      .update({ last_active_at: new Date().toISOString() })
+      .update({ 
+        last_active_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
       .eq('id', userId)
 
     if (error) {
       console.error('Error updating last active:', error)
+    }
+  }
+
+  /**
+   * Update user profile information
+   */
+  static async updateUserProfile(userId: string, updates: {
+    name?: string
+    avatar_url?: string
+    theme?: 'light' | 'dark' | 'system'
+    email_notifications?: boolean
+  }): Promise<User | null> {
+    const { data, error } = await supabase
+      .from('users')
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating user profile:', error)
+      return null
+    }
+
+    return data
+  }
+
+  /**
+   * Get user session with extended information
+   */
+  static async getUserSession(userId: string): Promise<{
+    user: User | null
+    subscription: Subscription | null
+    usage: UsageTracking | null
+    tier: string
+  }> {
+    const user = await this.getCurrentUser()
+    const subscription = user ? await this.getUserSubscription(user.id) : null
+    const usage = user ? await this.getUserUsage(user.id) : null
+    
+    let tier = 'free'
+    if (subscription?.status === 'active') {
+      tier = subscription.tier
+    }
+
+    return {
+      user,
+      subscription,
+      usage,
+      tier
     }
   }
 

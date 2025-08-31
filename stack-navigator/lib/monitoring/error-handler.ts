@@ -130,32 +130,14 @@ export class ErrorHandler {
   }
 }
 
-// Default error fallback component
-function DefaultErrorFallback({ error, resetError }: { error: Error; resetError: () => void }) {
-  return (
-    <div className="flex items-center justify-center min-h-screen p-4">
-      <div className="text-center max-w-md">
-        <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
-        <p className="text-muted-foreground mb-4">
-          We've been notified about this error and are working on a fix.
-        </p>
-        <details className="mb-4 text-left">
-          <summary className="cursor-pointer text-sm text-muted-foreground">
-            Error details
-          </summary>
-          <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-auto">
-            {error.message}
-          </pre>
-        </details>
-        <button
-          onClick={resetError}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
-        >
-          Try again
-        </button>
-      </div>
-    </div>
-  )
+// Default error fallback component - returns error info for logging
+export function DefaultErrorFallback({ error, resetError }: { error: Error; resetError: () => void }) {
+  return {
+    error: error.message,
+    stack: error.stack,
+    timestamp: new Date().toISOString(),
+    resetFunction: resetError
+  }
 }
 
 // API route error handler

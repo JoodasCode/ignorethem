@@ -5,8 +5,7 @@ import { SessionManager } from '@/lib/session-manager';
 export async function POST(req: NextRequest) {
   try {
     // Get client IP for rate limiting
-    const clientIp = req.ip || 
-                    req.headers.get('x-forwarded-for')?.split(',')[0] || 
+    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0] || 
                     req.headers.get('x-real-ip') || 
                     'unknown';
 

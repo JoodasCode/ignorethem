@@ -25,7 +25,10 @@ const GenerateRequestSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     // Get user from session
-    const supabase = createClient()
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
@@ -43,7 +46,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { 
           error: 'Invalid request data',
-          details: validationResult.error.errors
+          details: validationResult.error.issues
         },
         { status: 400 }
       )
@@ -98,7 +101,11 @@ export async function POST(request: NextRequest) {
     await saveProjectConfig(user.id, generatedProject, conversationId)
 
     // Return ZIP file as download
-    const response = new NextResponse(zipResult.zipBuffer, {
+    if (!zipResult.zipBuffer) {
+      throw new Error('Failed to generate ZIP file')
+    }
+
+    const response = new NextResponse(new Uint8Array(zipResult.zipBuffer), {
       status: 200,
       headers: {
         'Content-Type': 'application/zip',
@@ -133,7 +140,10 @@ async function saveProjectConfig(
   conversationId?: string
 ) {
   try {
-    const supabase = createClient()
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     
     const { error } = await supabase
       .from('projects')
@@ -157,7 +167,10 @@ async function saveProjectConfig(
 // GET endpoint for checking generation limits
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {

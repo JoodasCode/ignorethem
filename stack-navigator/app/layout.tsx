@@ -1,55 +1,45 @@
-import type React from "react"
 import type { Metadata } from "next"
-import { Oxanium } from "next/font/google"
-import { Merriweather } from "next/font/google"
-import { Fira_Code } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
-import { ThemeProvider } from "@/components/theme-provider"
-import { AppLayout } from "@/components/app-layout"
-import { Suspense } from "react"
+import { Oxanium, Merriweather, Fira_Code } from "next/font/google"
 import "./globals.css"
+import { ThemeProvider } from "@/components/theme-provider"
 
-const oxanium = Oxanium({
+const oxanium = Oxanium({ 
   subsets: ["latin"],
-  display: "swap",
-  variable: "--font-oxanium",
+  variable: "--font-sans"
 })
 
-const merriweather = Merriweather({
+const merriweather = Merriweather({ 
   subsets: ["latin"],
-  weight: ["300", "400", "700"],
-  display: "swap",
-  variable: "--font-merriweather",
+  weight: ["300", "400", "700", "900"],
+  variable: "--font-serif"
 })
 
-const firaCode = Fira_Code({
+const firaCode = Fira_Code({ 
   subsets: ["latin"],
-  display: "swap",
-  variable: "--font-fira-code",
+  variable: "--font-mono"
 })
 
 export const metadata: Metadata = {
   title: "Stack Navigator - Build Your Perfect SaaS Stack in Minutes",
   description: "Stop researching. Start building. Get a fully integrated starter with your ideal tech stack.",
-  generator: "Stack Navigator",
 }
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`font-sans ${oxanium.variable} ${merriweather.variable} ${firaCode.variable} antialiased`}>
-        <Suspense fallback={null}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            <AppLayout>
-              {children}
-            </AppLayout>
-          </ThemeProvider>
-        </Suspense>
-        <Analytics />
+      <body className={`${oxanium.variable} ${merriweather.variable} ${firaCode.variable} font-sans antialiased`}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   )

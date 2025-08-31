@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { UserService } from '@/lib/user-service'
 import { CodeGenerator } from '@/lib/code-generator'
-import { ZipGenerator } from '@/lib/zip-generator'
+import { ZipGeneratorService } from '@/lib/zip-generator'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Get authenticated user
@@ -18,7 +18,7 @@ export async function POST(
       )
     }
 
-    const projectId = params.id
+    const projectId = (await params).id
 
     // Check if user can generate a stack (usage limits)
     const canGenerate = await UserService.canGenerateStack(user.id)
@@ -58,11 +58,10 @@ export async function POST(
     try {
       // Generate the project code
       const codeGenerator = new CodeGenerator()
-      const generatedProject = await codeGenerator.generateProject(project.stack_selections)
+      const generatedProject = await codeGenerator.generateProject(project.name, project.stack_selections)
 
       // Create ZIP file
-      const zipGenerator = new ZipGenerator()
-      const zipBuffer = await zipGenerator.createProjectZip(generatedProject, project.name)
+      const zipResult = await ZipGeneratorService.generateProjectZip(generatedProject, { userId: project.user_id || 'anonymous', projectName: project.name })
 
       // Update project with completion status
       await supabase
@@ -70,7 +69,7 @@ export async function POST(
         .update({
           generation_status: 'completed',
           generation_completed_at: new Date().toISOString(),
-          zip_file_size: zipBuffer.length,
+          zip_file_size: zipResult.zipBuffer?.length || 0,
           updated_at: new Date().toISOString()
         })
         .eq('id', projectId)
@@ -79,11 +78,15 @@ export async function POST(
       await UserService.incrementStackGeneration(user.id)
 
       // Return the ZIP file
-      return new NextResponse(zipBuffer, {
+      if (!zipResult.zipBuffer) {
+        throw new Error('Failed to generate ZIP file')
+      }
+
+      return new NextResponse(new Uint8Array(zipResult.zipBuffer), {
         headers: {
           'Content-Type': 'application/zip',
           'Content-Disposition': `attachment; filename="${project.name}.zip"`,
-          'Content-Length': zipBuffer.length.toString(),
+          'Content-Length': zipResult.zipBuffer.length.toString(),
         },
       })
 

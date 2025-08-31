@@ -13,8 +13,7 @@ export async function POST(req: NextRequest) {
     const { messages, conversationContext } = await req.json();
 
     // Get client IP
-    const clientIp = req.ip || 
-                    req.headers.get('x-forwarded-for')?.split(',')[0] || 
+    const clientIp = req.headers.get('x-forwarded-for')?.split(',')[0] || 
                     req.headers.get('x-real-ip') || 
                     'unknown';
 
@@ -149,11 +148,10 @@ Respond naturally and helpfully. If they seem ready for recommendations, suggest
       model: openai('gpt-4-turbo'),
       system: systemPrompt,
       messages: convertToCoreMessages(sanitizedMessages),
-      maxTokens: 1000,
       temperature: 0.7,
     });
 
-    return result.toDataStreamResponse();
+    return result.toTextStreamResponse();
   } catch (error) {
     console.error('Chat API error:', error);
     return new Response(

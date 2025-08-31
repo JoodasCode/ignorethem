@@ -186,11 +186,6 @@ export function SidebarNavigation() {
                     {!collapsed && (
                       <div className="flex items-center justify-between w-full">
                         <span>{item.title}</span>
-                        {item.badge && (
-                          <Badge variant="outline" className="text-xs ml-2">
-                            {item.badge}
-                          </Badge>
-                        )}
                       </div>
                     )}
                   </Button>
@@ -211,11 +206,6 @@ export function SidebarNavigation() {
                   {!collapsed && (
                     <div className="flex items-center justify-between w-full">
                       <span>{item.title}</span>
-                      {item.badge && (
-                        <Badge variant="outline" className="text-xs ml-2">
-                          {item.badge}
-                        </Badge>
-                      )}
                     </div>
                   )}
                 </Button>

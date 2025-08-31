@@ -5,7 +5,7 @@ import { headers } from 'next/headers'
 
 export async function POST(request: NextRequest) {
   const body = await request.text()
-  const signature = headers().get('stripe-signature')
+  const signature = (await headers()).get('stripe-signature')
 
   if (!signature) {
     return NextResponse.json(
@@ -75,8 +75,8 @@ async function handleSubscriptionChange(subscription: any) {
       const userId = subscription.metadata.userId
       if (userId) {
         // Import usage tracking service to reset limits
-        const { usageTrackingService } = await import('@/lib/usage-tracking')
-        await usageTrackingService.resetMonthlyUsage(userId)
+        const { UsageTrackingService } = await import('@/lib/usage-tracking')
+        await UsageTrackingService.resetMonthlyUsage(userId)
       }
     }
   } catch (error) {

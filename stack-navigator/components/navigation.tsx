@@ -13,8 +13,9 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu"
-import { Menu, X, Github, FileText, LayoutDashboard, Search, Layers, User, Settings, LogOut, Crown } from "lucide-react"
+import { Menu, X, Github, LayoutDashboard, User, LogOut, Crown } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { NotificationCenter } from "@/components/notifications/notification-center"
 import { useUserSession } from "@/hooks/use-user-session"
 import { useAuth } from "@/hooks/use-auth"
 
@@ -42,22 +43,14 @@ export function Navigation() {
   }
 
   const getNavItems = () => {
-    const baseItems = [
-      { href: "/browse", icon: Search, label: "Browse Stacks" },
-      { href: "/templates", icon: FileText, label: "Templates" },
-    ]
-
+    // Simplified navigation - focus only on core features
     const authenticatedItems = [
       { href: "/chat", icon: LayoutDashboard, label: "Chat" },
       { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
     ]
 
-    // Compare is only available for Starter+ tiers
-    if (tier === 'starter' || tier === 'pro') {
-      baseItems.push({ href: "/compare", icon: Layers, label: "Compare" })
-    }
-
-    return isAuthenticated ? [...baseItems, ...authenticatedItems] : baseItems
+    // Only show navigation items for authenticated users
+    return isAuthenticated ? authenticatedItems : []
   }
 
   return (
@@ -95,6 +88,9 @@ export function Navigation() {
             </Button>
             
             <ThemeToggle />
+            
+            {/* Notifications */}
+            {isAuthenticated && <NotificationCenter />}
 
             {/* User Menu */}
             {isAuthenticated && user ? (
@@ -129,9 +125,9 @@ export function Navigation() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/settings" className="flex items-center">
-                      <Settings className="mr-2 h-4 w-4" />
-                      <span>Settings</span>
+                    <Link href="/profile" className="flex items-center">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -206,9 +202,9 @@ export function Navigation() {
                     </div>
                   </div>
                   <Button variant="ghost" asChild className="justify-start">
-                    <Link href="/settings" className="flex items-center space-x-2">
-                      <Settings className="w-4 h-4" />
-                      <span>Settings</span>
+                    <Link href="/profile" className="flex items-center space-x-2">
+                      <User className="w-4 w-4" />
+                      <span>Profile</span>
                     </Link>
                   </Button>
                   <Button variant="ghost" onClick={handleSignOut} className="justify-start">

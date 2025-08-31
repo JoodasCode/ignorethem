@@ -1,5 +1,6 @@
 "use client"
 
+import { AuthGuard } from "@/components/auth/auth-guard"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -65,7 +66,8 @@ export default function Dashboard() {
   }
 
   return (
-    <DashboardLayout>
+    <AuthGuard redirectTo="/dashboard">
+      <DashboardLayout>
       <div className="py-8 px-6">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
@@ -206,5 +208,6 @@ export default function Dashboard() {
         </div>
       </div>
     </DashboardLayout>
+    </AuthGuard>
   )
 }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { openai } from 'ai'
+import { openai } from '@ai-sdk/openai'
 import { withErrorHandling } from '@/lib/monitoring/error-handler'
 import { logger } from '@/lib/monitoring/logger'
 

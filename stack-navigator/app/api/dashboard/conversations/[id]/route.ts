@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Get authenticated user
@@ -15,7 +15,7 @@ export async function GET(
       )
     }
 
-    const conversationId = params.id
+    const conversationId = (await params).id
 
     // Get conversation and verify ownership
     const { data: conversation, error: conversationError } = await supabase
@@ -58,7 +58,7 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     // Get authenticated user
@@ -70,7 +70,7 @@ export async function PUT(
       )
     }
 
-    const conversationId = params.id
+    const conversationId = (await params).id
     const { title } = await request.json()
 
     if (!title || title.trim().length === 0) {

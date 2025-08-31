@@ -134,6 +134,34 @@ export function useAuth() {
     return { data, error }
   }
 
+  const signInWithMagicLink = async (email: string) => {
+    const { data, error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`
+      }
+    })
+
+    return { data, error }
+  }
+
+  const signInWithGoogle = async () => {
+    setState(prev => ({ ...prev, loading: true, error: null }))
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`
+      }
+    })
+
+    if (error) {
+      setState(prev => ({ ...prev, error, loading: false }))
+    }
+
+    return { data, error }
+  }
+
   const updatePassword = async (password: string) => {
     const { data, error } = await supabase.auth.updateUser({
       password
@@ -165,6 +193,8 @@ export function useAuth() {
     signIn,
     signOut,
     resetPassword,
+    signInWithMagicLink,
+    signInWithGoogle,
     updatePassword,
     updateProfile,
     isAuthenticated: !!state.user

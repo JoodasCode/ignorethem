@@ -12,6 +12,9 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+// Re-export createClient for convenience
+export { createClient }
+
 // Database types
 export interface User {
   id: string

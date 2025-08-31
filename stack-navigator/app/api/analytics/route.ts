@@ -5,7 +5,10 @@ import { createClient } from '@/lib/supabase'
 export async function GET(request: NextRequest) {
   try {
     // Check if user is authenticated and has admin access
-    const supabase = createClient()
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {
@@ -92,7 +95,10 @@ export async function GET(request: NextRequest) {
 // POST endpoint for tracking custom events
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createClient()
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    )
     const { data: { user }, error: authError } = await supabase.auth.getUser()
 
     if (authError || !user) {

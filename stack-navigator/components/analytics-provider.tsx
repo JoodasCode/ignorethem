@@ -33,7 +33,6 @@ export function AnalyticsProvider({ children }: AnalyticsProviderProps) {
     if (user) {
       analytics.identify(user.id, {
         email: user.email,
-        subscription_tier: user.subscription_tier,
         created_at: user.created_at,
       })
     } else {

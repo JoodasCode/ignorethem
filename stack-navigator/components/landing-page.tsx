@@ -3,14 +3,25 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { ArrowRight, Zap, Shield, Rocket, Search, Users, TrendingUp, Eye, User, Building } from "lucide-react"
+import { ArrowRight, Zap, Shield, Rocket, Users, TrendingUp, Eye, User, Building } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
+import { AuthModal } from "@/components/auth/auth-modal"
+import { useAuth } from "@/hooks/use-auth"
 
 export function LandingPage() {
-  const [showDemo, setShowDemo] = useState(false)
-  const [searchQuery, setSearchQuery] = useState("")
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const { isAuthenticated } = useAuth()
+  const searchParams = useSearchParams()
+
+  // Handle auth required redirect
+  useEffect(() => {
+    const authRequired = searchParams.get('auth')
+    if (authRequired === 'required') {
+      setShowAuthModal(true)
+    }
+  }, [searchParams])
 
   const handleDemoClick = () => {
     // Navigate to chat with a pre-filled demo conversation
@@ -36,36 +47,39 @@ export function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button size="lg" className="text-lg px-8 py-6" asChild>
-              <Link href="/chat">
-                Start Building Your Stack
+            {isAuthenticated ? (
+              <Button size="lg" className="text-lg px-8 py-6" asChild>
+                <Link href="/chat">
+                  Start Building Your Stack
+                  <ArrowRight className="ml-2 w-5 h-5" />
+                </Link>
+              </Button>
+            ) : (
+              <Button 
+                size="lg" 
+                className="text-lg px-8 py-6"
+                onClick={() => setShowAuthModal(true)}
+              >
+                Get Started Free
                 <ArrowRight className="ml-2 w-5 h-5" />
-              </Link>
-            </Button>
+              </Button>
+            )}
           </div>
 
           <div className="max-w-2xl mx-auto">
-            <div className="relative mb-6">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-              <Input
-                placeholder="Find stacks with Supabase + Stripe, Next.js + Auth0..."
-                className="pl-10 py-3 text-base"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-
-            <div className="flex flex-wrap gap-2 justify-center">
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/browse">Browse Popular Stacks</Link>
-              </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/compare">Compare Frameworks</Link>
-              </Button>
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/templates">Template Gallery</Link>
-              </Button>
-            </div>
+            <p className="text-lg text-muted-foreground mb-6">
+              Just describe your project and get a complete, production-ready stack in minutes.
+            </p>
+            
+            <Button 
+              variant="outline" 
+              size="lg" 
+              onClick={handleDemoClick}
+              className="text-base px-6 py-3"
+            >
+              See Demo Conversation
+              <ArrowRight className="ml-2 w-4 h-4" />
+            </Button>
           </div>
         </div>
       </section>
@@ -97,14 +111,9 @@ export function LandingPage() {
       {/* Popular Stack Examples */}
       <section className="py-16 px-4">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between mb-12">
-            <h2 className="text-3xl font-bold">Popular Stack Combinations</h2>
-            <Button variant="outline" asChild>
-              <Link href="/browse">
-                View All Stacks
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold">AI Generates These Stacks Instantly</h2>
+            <p className="text-muted-foreground mt-2">Based on your project description</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -363,12 +372,18 @@ export function LandingPage() {
           </div>
 
           <div className="text-center mt-8">
-            <Button asChild>
-              <Link href="/chat">Try Your Own Project</Link>
-            </Button>
-            <Button variant="outline" className="ml-3 bg-transparent" asChild>
-              <Link href="/templates">Skip to Popular Template</Link>
-            </Button>
+            {isAuthenticated ? (
+              <Button size="lg" asChild>
+                <Link href="/chat">Start Building Your Stack</Link>
+              </Button>
+            ) : (
+              <Button 
+                size="lg"
+                onClick={() => setShowAuthModal(true)}
+              >
+                Get Started Free
+              </Button>
+            )}
           </div>
         </div>
       </section>
@@ -416,6 +431,13 @@ export function LandingPage() {
           </Button>
         </div>
       </section>
+
+      {/* Auth Modal */}
+      <AuthModal 
+        isOpen={showAuthModal} 
+        onClose={() => setShowAuthModal(false)}
+        defaultTab="signup"
+      />
     </div>
   )
 }
