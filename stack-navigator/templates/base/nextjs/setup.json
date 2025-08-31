@@ -1,0 +1,30 @@
+[
+  {
+    "step": 1,
+    "title": "Install dependencies",
+    "description": "Install all required packages",
+    "command": "npm install",
+    "category": "installation"
+  },
+  {
+    "step": 2,
+    "title": "Set up environment variables",
+    "description": "Copy .env.example to .env.local and fill in your values",
+    "command": "cp .env.example .env.local",
+    "category": "configuration"
+  },
+  {
+    "step": 3,
+    "title": "Start development server",
+    "description": "Run the development server",
+    "command": "npm run dev",
+    "category": "testing"
+  },
+  {
+    "step": 4,
+    "title": "Open in browser",
+    "description": "Visit your application",
+    "url": "http://localhost:3000",
+    "category": "testing"
+  }
+]

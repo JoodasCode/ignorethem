@@ -1,0 +1,18 @@
+{
+  "id": "supabase",
+  "name": "Supabase Database",
+  "description": "PostgreSQL database with real-time subscriptions, built-in auth, and edge functions",
+  "category": "database",
+  "version": "1.0.0",
+  "complexity": "simple",
+  "pricing": "freemium",
+  "setupTime": 15,
+  "dependencies": ["nextjs-base"],
+  "conflicts": ["planetscale", "neon", "mongodb"],
+  "requiredEnvVars": ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY", "SUPABASE_SERVICE_ROLE_KEY"],
+  "optionalEnvVars": ["DATABASE_URL"],
+  "documentation": "https://supabase.com/docs/guides/database",
+  "tags": ["database", "postgresql", "realtime", "supabase", "edge-functions"],
+  "popularity": 95,
+  "lastUpdated": "2024-01-01T00:00:00Z"
+}

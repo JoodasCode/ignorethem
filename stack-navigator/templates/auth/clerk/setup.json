@@ -1,0 +1,28 @@
+[
+  {
+    "step": 1,
+    "title": "Create Clerk account",
+    "description": "Sign up for a Clerk account and create a new application",
+    "url": "https://clerk.com/sign-up",
+    "category": "configuration"
+  },
+  {
+    "step": 2,
+    "title": "Get API keys",
+    "description": "Copy your publishable and secret keys from the Clerk dashboard",
+    "url": "https://dashboard.clerk.com",
+    "category": "configuration"
+  },
+  {
+    "step": 3,
+    "title": "Configure environment variables",
+    "description": "Add your Clerk keys to .env.local",
+    "category": "configuration"
+  },
+  {
+    "step": 4,
+    "title": "Test authentication",
+    "description": "Visit /sign-in to test the authentication flow",
+    "category": "testing"
+  }
+]

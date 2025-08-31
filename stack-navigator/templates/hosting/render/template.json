@@ -1,0 +1,18 @@
+{
+  "id": "render",
+  "name": "Render Hosting",
+  "description": "Deploy your application to Render with automatic deployments and managed databases",
+  "category": "hosting",
+  "version": "1.0.0",
+  "complexity": "simple",
+  "pricing": "freemium",
+  "setupTime": 10,
+  "dependencies": ["nextjs-base"],
+  "conflicts": ["vercel", "netlify", "railway"],
+  "requiredEnvVars": [],
+  "optionalEnvVars": [],
+  "documentation": "https://render.com/docs",
+  "tags": ["hosting", "render", "deployment", "managed-databases", "static-sites"],
+  "popularity": 70,
+  "lastUpdated": "2024-01-01T00:00:00Z"
+}

@@ -1,0 +1,37 @@
+[
+  {
+    "step": 1,
+    "title": "Install Railway CLI",
+    "description": "Install the Railway CLI for deployment management",
+    "command": "npm install -g @railway/cli",
+    "category": "installation"
+  },
+  {
+    "step": 2,
+    "title": "Login to Railway",
+    "description": "Authenticate with your Railway account",
+    "command": "railway login",
+    "category": "setup"
+  },
+  {
+    "step": 3,
+    "title": "Initialize Project",
+    "description": "Initialize Railway in your project directory",
+    "command": "railway init",
+    "category": "setup"
+  },
+  {
+    "step": 4,
+    "title": "Set Environment Variables",
+    "description": "Configure your environment variables",
+    "command": "railway variables set KEY=value",
+    "category": "setup"
+  },
+  {
+    "step": 5,
+    "title": "Deploy",
+    "description": "Deploy your application to Railway",
+    "command": "railway up",
+    "category": "deployment"
+  }
+]

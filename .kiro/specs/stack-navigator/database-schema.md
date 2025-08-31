@@ -19,6 +19,11 @@ CREATE TABLE users (
   name TEXT,
   avatar_url TEXT,
   
+  -- Subscription information
+  stripe_customer_id TEXT UNIQUE,
+  subscription_tier TEXT DEFAULT 'free' CHECK (subscription_tier IN ('free', 'starter', 'pro')),
+  subscription_status TEXT DEFAULT 'active' CHECK (subscription_status IN ('active', 'canceled', 'past_due', 'incomplete', 'trialing')),
+  
   -- Preferences
   theme TEXT DEFAULT 'system' CHECK (theme IN ('light', 'dark', 'system')),
   email_notifications BOOLEAN DEFAULT true,
@@ -332,7 +337,93 @@ CREATE INDEX idx_analytics_events_user ON analytics_events(user_id, created_at D
 CREATE INDEX idx_analytics_events_session ON analytics_events(session_id, created_at DESC);
 ```
 
-### 9. Popular Stacks Table (for Browse page)
+### 9. Subscriptions Table
+```sql
+CREATE TABLE subscriptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  
+  -- Stripe integration
+  stripe_customer_id TEXT NOT NULL,
+  stripe_subscription_id TEXT UNIQUE,
+  
+  -- Subscription details
+  tier TEXT NOT NULL DEFAULT 'free' CHECK (tier IN ('free', 'starter', 'pro')),
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'canceled', 'past_due', 'incomplete', 'trialing')),
+  
+  -- Billing period
+  current_period_start TIMESTAMPTZ NOT NULL,
+  current_period_end TIMESTAMPTZ NOT NULL,
+  cancel_at_period_end BOOLEAN DEFAULT false,
+  
+  -- Timestamps
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  
+  -- Ensure one subscription per user
+  UNIQUE(user_id)
+);
+
+-- Enable RLS
+ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies
+CREATE POLICY "Users can view own subscription" ON subscriptions
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Service role can manage subscriptions" ON subscriptions
+  FOR ALL USING (auth.role() = 'service_role');
+
+-- Indexes
+CREATE INDEX idx_subscriptions_user ON subscriptions(user_id);
+CREATE INDEX idx_subscriptions_stripe_customer ON subscriptions(stripe_customer_id);
+CREATE INDEX idx_subscriptions_stripe_subscription ON subscriptions(stripe_subscription_id);
+CREATE INDEX idx_subscriptions_status ON subscriptions(status);
+```
+
+### 10. Usage Tracking Table
+```sql
+CREATE TABLE usage_tracking (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  
+  -- Usage period
+  period_start TIMESTAMPTZ NOT NULL,
+  period_end TIMESTAMPTZ NOT NULL,
+  
+  -- Stack generation limits
+  stack_generations_used INTEGER DEFAULT 0,
+  stack_generations_limit INTEGER DEFAULT 1, -- -1 for unlimited
+  
+  -- Conversation limits
+  conversations_saved INTEGER DEFAULT 0,
+  conversations_limit INTEGER DEFAULT 1, -- -1 for unlimited
+  
+  -- Message limits (per conversation)
+  messages_sent INTEGER DEFAULT 0,
+  messages_limit INTEGER DEFAULT 20, -- -1 for unlimited
+  
+  -- Timestamps
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS
+ALTER TABLE usage_tracking ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies
+CREATE POLICY "Users can view own usage" ON usage_tracking
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Service role can manage usage" ON usage_tracking
+  FOR ALL USING (auth.role() = 'service_role');
+
+-- Indexes
+CREATE INDEX idx_usage_tracking_user_period ON usage_tracking(user_id, period_end DESC);
+CREATE INDEX idx_usage_tracking_period_end ON usage_tracking(period_end);
+```
+
+### 11. Popular Stacks Table (for Browse page)
 ```sql
 CREATE TABLE popular_stacks (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

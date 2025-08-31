@@ -5,6 +5,7 @@ import { Merriweather } from "next/font/google"
 import { Fira_Code } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { ThemeProvider } from "@/components/theme-provider"
+import { AppLayout } from "@/components/app-layout"
 import { Suspense } from "react"
 import "./globals.css"
 
@@ -42,8 +43,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`font-sans ${oxanium.variable} ${merriweather.variable} ${firaCode.variable} antialiased`}>
         <Suspense fallback={null}>
-          <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-            {children}
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <AppLayout>
+              {children}
+            </AppLayout>
           </ThemeProvider>
         </Suspense>
         <Analytics />

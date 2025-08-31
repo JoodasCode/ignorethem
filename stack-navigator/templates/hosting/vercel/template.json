@@ -1,0 +1,18 @@
+{
+  "id": "vercel",
+  "name": "Vercel Hosting",
+  "description": "Deploy your Next.js application to Vercel with automatic deployments and edge functions",
+  "category": "hosting",
+  "version": "1.0.0",
+  "complexity": "simple",
+  "pricing": "freemium",
+  "setupTime": 5,
+  "dependencies": ["nextjs-base"],
+  "conflicts": ["netlify", "railway", "render"],
+  "requiredEnvVars": [],
+  "optionalEnvVars": ["VERCEL_TOKEN"],
+  "documentation": "https://vercel.com/docs",
+  "tags": ["hosting", "vercel", "deployment", "edge-functions", "serverless"],
+  "popularity": 95,
+  "lastUpdated": "2024-01-01T00:00:00Z"
+}

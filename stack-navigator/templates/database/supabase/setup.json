@@ -1,0 +1,42 @@
+[
+  {
+    "step": 1,
+    "title": "Create Supabase Project",
+    "description": "Create a new project at https://supabase.com/dashboard",
+    "category": "setup"
+  },
+  {
+    "step": 2,
+    "title": "Get Project Credentials",
+    "description": "Copy your project URL and anon key from Settings > API",
+    "category": "setup"
+  },
+  {
+    "step": 3,
+    "title": "Install Supabase CLI",
+    "description": "Install the Supabase CLI for local development",
+    "command": "npm install -g supabase",
+    "category": "installation"
+  },
+  {
+    "step": 4,
+    "title": "Initialize Supabase",
+    "description": "Initialize Supabase in your project directory",
+    "command": "supabase init",
+    "category": "setup"
+  },
+  {
+    "step": 5,
+    "title": "Link to Remote Project",
+    "description": "Link your local project to your Supabase project",
+    "command": "supabase link --project-ref your-project-ref",
+    "category": "setup"
+  },
+  {
+    "step": 6,
+    "title": "Generate TypeScript Types",
+    "description": "Generate TypeScript types from your database schema",
+    "command": "npm run db:types",
+    "category": "development"
+  }
+]

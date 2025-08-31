@@ -1,0 +1,18 @@
+{
+  "id": "railway",
+  "name": "Railway Hosting",
+  "description": "Deploy your application to Railway with automatic deployments from Git",
+  "category": "hosting",
+  "version": "1.0.0",
+  "complexity": "simple",
+  "pricing": "freemium",
+  "setupTime": 10,
+  "dependencies": ["nextjs-base"],
+  "conflicts": ["vercel", "netlify", "render"],
+  "requiredEnvVars": [],
+  "optionalEnvVars": ["RAILWAY_TOKEN"],
+  "documentation": "https://docs.railway.app",
+  "tags": ["hosting", "railway", "deployment", "docker", "databases"],
+  "popularity": 75,
+  "lastUpdated": "2024-01-01T00:00:00Z"
+}

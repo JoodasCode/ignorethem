@@ -1,0 +1,18 @@
+{
+  "id": "supabase-auth",
+  "name": "Supabase Auth",
+  "description": "Built-in authentication with Supabase, includes email/password, magic links, and social providers",
+  "category": "auth",
+  "version": "1.0.0",
+  "complexity": "simple",
+  "pricing": "freemium",
+  "setupTime": 10,
+  "dependencies": ["nextjs-base", "supabase"],
+  "conflicts": ["clerk", "nextauth"],
+  "requiredEnvVars": ["NEXT_PUBLIC_SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_ANON_KEY"],
+  "optionalEnvVars": [],
+  "documentation": "https://supabase.com/docs/guides/auth",
+  "tags": ["authentication", "supabase", "magic-links", "social-auth"],
+  "popularity": 80,
+  "lastUpdated": "2024-01-01T00:00:00Z"
+}

@@ -28,10 +28,13 @@ graph TB
 
 - **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS, shadcn/ui, Framer Motion
 - **Backend**: Next.js API Routes, Node.js
+- **Database**: Supabase PostgreSQL for user accounts, conversations, usage tracking
+- **Authentication**: Supabase Auth for user management and session handling
 - **AI**: Vercel AI SDK with OpenAI GPT-4 for intelligent recommendations
+- **Payments**: Stripe for subscription management and billing
 - **Template Storage**: File system with Git integration for version control
 - **Code Generation**: Custom template engine with Handlebars-like syntax
-- **Analytics**: PostHog for user flow tracking
+- **Analytics**: PostHog for user flow tracking and conversion analysis
 - **Deployment**: Vercel
 - **Monitoring**: Sentry for error tracking
 
@@ -118,30 +121,32 @@ graph TB
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Email Collection at Download
+### Account Creation (Required for Access)
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                                                             │
 │                  ┌─────────────────────────┐                │
-│                  │    🎉 Stack Ready!      │                │
+│                  │   Get Started Free      │                │
 │                  ├─────────────────────────┤                │
 │                  │                         │                │
-│                  │  Your personalized      │                │
-│                  │  stack is ready!        │                │
+│                  │  Build your perfect     │                │
+│                  │  tech stack             │                │
 │                  │                         │                │
-│                  │  📧 Enter your email    │                │
-│                  │     to download:        │                │
-│                  │                         │                │
+│                  │  📧 Email               │                │
 │                  │  [email@example.com  ]  │                │
 │                  │                         │                │
-│                  │  ✓ Get setup guide      │                │
-│                  │  ✓ Save conversation    │                │
-│                  │  ✓ Future updates       │                │
+│                  │  🔒 Password            │                │
+│                  │  [••••••••••••••••••]   │                │
 │                  │                         │                │
-│                  │  [Download My Stack]    │                │
+│                  │  ✓ Free forever plan    │                │
+│                  │  ✓ No credit card       │                │
+│                  │  ✓ 1 free stack         │                │
+│                  │  ✓ Save conversations   │                │
 │                  │                         │                │
-│                  │  No spam, unsubscribe   │                │
-│                  │  anytime                │                │
+│                  │  [Create Free Account]  │                │
+│                  │                         │                │
+│                  │  Already have account?  │                │
+│                  │  [Sign In]              │                │
 │                  │                         │                │
 │                  └─────────────────────────┘                │
 │                                                             │
@@ -299,6 +304,34 @@ graph TB
 │                  │  5. Start building! 🚀  │                │
 │                  │                         │                │
 │                  │     [View Setup Guide]  │                │
+│                  │                         │                │
+│                  └─────────────────────────┘                │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Upgrade Prompt (Free Tier Limit Reached)
+```
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│                  ┌─────────────────────────┐                │
+│                  │   🚀 Ready for More?    │                │
+│                  ├─────────────────────────┤                │
+│                  │                         │                │
+│                  │  You've used your free  │                │
+│                  │  stack generation!      │                │
+│                  │                         │                │
+│                  │  Upgrade to Starter:    │                │
+│                  │  ✓ 5 stacks per month   │                │
+│                  │  ✓ Unlimited messages   │                │
+│                  │  ✓ Compare stacks       │                │
+│                  │  ✓ Save all convos      │                │
+│                  │                         │                │
+│                  │  Just $4.99/month       │                │
+│                  │                         │                │
+│                  │  [Upgrade to Starter]   │                │
+│                  │                         │                │
+│                  │  [Maybe Later]          │                │
 │                  │                         │                │
 │                  └─────────────────────────┘                │
 │                                                             │
@@ -511,10 +544,44 @@ interface CodeGenerator {
 
 ## Data Models
 
+### User and Subscription Management
+```typescript
+interface User {
+  id: string
+  email: string
+  createdAt: Date
+  subscriptionTier: 'free' | 'starter' | 'pro'
+  subscriptionStatus: 'active' | 'canceled' | 'past_due'
+  stripeCustomerId?: string
+  usageStats: UsageStats
+}
+
+interface UsageStats {
+  stackGenerationsUsed: number
+  stackGenerationsLimit: number
+  conversationsSaved: number
+  conversationsLimit: number
+  currentPeriodStart: Date
+  currentPeriodEnd: Date
+}
+
+interface Conversation {
+  id: string
+  userId: string
+  title: string
+  messages: ChatMessage[]
+  generatedStack?: TechSelections
+  createdAt: Date
+  updatedAt: Date
+}
+```
+
 ### Project Configuration
 ```typescript
 interface ProjectConfig {
   id: string
+  userId: string
+  conversationId: string
   name: string
   selections: TechSelections
   context: ProjectContext

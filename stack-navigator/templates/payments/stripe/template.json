@@ -1,0 +1,18 @@
+{
+  "id": "stripe",
+  "name": "Stripe Payments",
+  "description": "Complete Stripe integration with subscriptions, one-time payments, and webhook handling",
+  "category": "payments",
+  "version": "1.0.0",
+  "complexity": "moderate",
+  "pricing": "freemium",
+  "setupTime": 20,
+  "dependencies": ["nextjs-base"],
+  "conflicts": ["paddle", "paypal"],
+  "requiredEnvVars": ["STRIPE_SECRET_KEY", "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY", "STRIPE_WEBHOOK_SECRET"],
+  "optionalEnvVars": ["STRIPE_PRICE_ID", "STRIPE_PRODUCT_ID"],
+  "documentation": "https://stripe.com/docs",
+  "tags": ["payments", "stripe", "subscriptions", "webhooks", "checkout"],
+  "popularity": 90,
+  "lastUpdated": "2024-01-01T00:00:00Z"
+}

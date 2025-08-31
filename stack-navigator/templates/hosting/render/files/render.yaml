@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: your-app-name
+    env: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+    # Add your environment variables here
+    # - key: DATABASE_URL
+    #   fromDatabase:
+    #     name: your-database-name
+    #     property: connectionString
+    # - key: NEXT_PUBLIC_API_URL
+    #   value: https://your-app-name.onrender.com
+
+# Uncomment to add a PostgreSQL database
+# databases:
+#   - name: your-database-name
+#     plan: free
+#     databaseName: your_db
+#     user: your_user

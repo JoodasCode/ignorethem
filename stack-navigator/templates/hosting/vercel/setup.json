@@ -1,0 +1,37 @@
+[
+  {
+    "step": 1,
+    "title": "Install Vercel CLI",
+    "description": "Install the Vercel CLI for deployment management",
+    "command": "npm install -g vercel",
+    "category": "installation"
+  },
+  {
+    "step": 2,
+    "title": "Login to Vercel",
+    "description": "Authenticate with your Vercel account",
+    "command": "vercel login",
+    "category": "setup"
+  },
+  {
+    "step": 3,
+    "title": "Link Project",
+    "description": "Link your local project to Vercel",
+    "command": "vercel link",
+    "category": "setup"
+  },
+  {
+    "step": 4,
+    "title": "Set Environment Variables",
+    "description": "Configure your environment variables in Vercel dashboard or CLI",
+    "command": "vercel env add",
+    "category": "setup"
+  },
+  {
+    "step": 5,
+    "title": "Deploy",
+    "description": "Deploy your application to Vercel",
+    "command": "vercel --prod",
+    "category": "deployment"
+  }
+]

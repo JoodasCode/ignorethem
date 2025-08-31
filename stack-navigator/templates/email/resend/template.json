@@ -1,0 +1,33 @@
+{
+  "id": "resend",
+  "name": "Resend Email Service",
+  "description": "Modern email API with excellent developer experience and deliverability",
+  "category": "email",
+  "complexity": "simple",
+  "pricing": "freemium",
+  "setupTime": 10,
+  "dependencies": [],
+  "conflicts": ["postmark", "sendgrid"],
+  "documentation": "https://resend.com/docs",
+  "features": [
+    "Transactional emails",
+    "Email templates",
+    "Webhooks",
+    "Analytics",
+    "React email support"
+  ],
+  "envVars": [
+    {
+      "name": "RESEND_API_KEY",
+      "description": "Resend API key from your dashboard",
+      "required": true,
+      "example": "re_..."
+    }
+  ],
+  "setupInstructions": [
+    "1. Sign up at https://resend.com",
+    "2. Create an API key in your dashboard",
+    "3. Add your API key to environment variables",
+    "4. Verify your domain for production use"
+  ]
+}

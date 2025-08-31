@@ -1,0 +1,18 @@
+{
+  "id": "nextauth",
+  "name": "NextAuth.js",
+  "description": "Flexible authentication library with support for multiple providers and custom configurations",
+  "category": "auth",
+  "version": "1.0.0",
+  "complexity": "moderate",
+  "pricing": "free",
+  "setupTime": 20,
+  "dependencies": ["nextjs-base"],
+  "conflicts": ["clerk", "supabase-auth"],
+  "requiredEnvVars": ["NEXTAUTH_SECRET", "NEXTAUTH_URL"],
+  "optionalEnvVars": ["GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GITHUB_ID", "GITHUB_SECRET"],
+  "documentation": "https://next-auth.js.org",
+  "tags": ["authentication", "oauth", "flexible", "self-hosted"],
+  "popularity": 85,
+  "lastUpdated": "2024-01-01T00:00:00Z"
+}

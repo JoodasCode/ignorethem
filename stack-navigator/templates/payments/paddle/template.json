@@ -1,0 +1,18 @@
+{
+  "id": "paddle",
+  "name": "Paddle Payments",
+  "description": "Paddle integration for global payments with built-in tax handling and subscription management",
+  "category": "payments",
+  "version": "1.0.0",
+  "complexity": "moderate",
+  "pricing": "freemium",
+  "setupTime": 25,
+  "dependencies": ["nextjs-base"],
+  "conflicts": ["stripe", "paypal"],
+  "requiredEnvVars": ["PADDLE_API_KEY", "NEXT_PUBLIC_PADDLE_CLIENT_TOKEN", "PADDLE_WEBHOOK_SECRET"],
+  "optionalEnvVars": ["PADDLE_ENVIRONMENT"],
+  "documentation": "https://developer.paddle.com",
+  "tags": ["payments", "paddle", "subscriptions", "tax-handling", "global"],
+  "popularity": 70,
+  "lastUpdated": "2024-01-01T00:00:00Z"
+}

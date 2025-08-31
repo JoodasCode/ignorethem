@@ -1,0 +1,32 @@
+[
+  {
+    "step": 1,
+    "title": "Create Stripe Account",
+    "description": "Sign up for a Stripe account at https://stripe.com",
+    "category": "setup"
+  },
+  {
+    "step": 2,
+    "title": "Get API Keys",
+    "description": "Copy your publishable and secret keys from Stripe Dashboard > Developers > API keys",
+    "category": "setup"
+  },
+  {
+    "step": 3,
+    "title": "Create Products and Prices",
+    "description": "Set up your products and pricing in Stripe Dashboard > Products",
+    "category": "setup"
+  },
+  {
+    "step": 4,
+    "title": "Configure Webhooks",
+    "description": "Create a webhook endpoint in Stripe Dashboard > Developers > Webhooks",
+    "category": "setup"
+  },
+  {
+    "step": 5,
+    "title": "Test Integration",
+    "description": "Use Stripe's test cards to verify your integration",
+    "category": "testing"
+  }
+]

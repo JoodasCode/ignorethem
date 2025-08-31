@@ -1,0 +1,32 @@
+[
+  {
+    "step": 1,
+    "title": "Connect Git Repository",
+    "description": "Connect your Git repository to Render via the dashboard",
+    "category": "setup"
+  },
+  {
+    "step": 2,
+    "title": "Create Web Service",
+    "description": "Create a new web service in Render dashboard",
+    "category": "setup"
+  },
+  {
+    "step": 3,
+    "title": "Configure Build Settings",
+    "description": "Set build command to 'npm run build' and start command to 'npm start'",
+    "category": "setup"
+  },
+  {
+    "step": 4,
+    "title": "Set Environment Variables",
+    "description": "Configure your environment variables in Render dashboard",
+    "category": "setup"
+  },
+  {
+    "step": 5,
+    "title": "Deploy",
+    "description": "Render will automatically deploy when you push to your connected branch",
+    "category": "deployment"
+  }
+]

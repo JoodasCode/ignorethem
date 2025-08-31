@@ -1,0 +1,33 @@
+{
+  "id": "postmark",
+  "name": "Postmark Email Service",
+  "description": "Reliable transactional email service with excellent deliverability",
+  "category": "email",
+  "complexity": "simple",
+  "pricing": "freemium",
+  "setupTime": 15,
+  "dependencies": [],
+  "conflicts": ["resend", "sendgrid"],
+  "documentation": "https://postmarkapp.com/developer",
+  "features": [
+    "Transactional emails",
+    "Email templates",
+    "Webhooks",
+    "Detailed analytics",
+    "Bounce handling"
+  ],
+  "envVars": [
+    {
+      "name": "POSTMARK_SERVER_TOKEN",
+      "description": "Postmark server token from your dashboard",
+      "required": true,
+      "example": "your-server-token-here"
+    }
+  ],
+  "setupInstructions": [
+    "1. Sign up at https://postmarkapp.com",
+    "2. Create a server and get your server token",
+    "3. Add your server token to environment variables",
+    "4. Verify your sender signature or domain"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "nextjs-base",
+  "name": "Next.js 14 Base Template",
+  "description": "Modern Next.js 14 application with TypeScript, Tailwind CSS, and App Router",
+  "category": "base",
+  "version": "1.0.0",
+  "complexity": "simple",
+  "pricing": "free",
+  "setupTime": 10,
+  "dependencies": [],
+  "conflicts": ["remix", "sveltekit"],
+  "requiredEnvVars": [],
+  "optionalEnvVars": ["NEXT_PUBLIC_APP_URL"],
+  "documentation": "https://nextjs.org/docs",
+  "tags": ["react", "typescript", "tailwind", "app-router"],
+  "popularity": 100,
+  "lastUpdated": "2024-01-01T00:00:00Z"
+}

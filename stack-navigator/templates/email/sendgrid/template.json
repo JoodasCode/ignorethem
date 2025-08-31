@@ -1,0 +1,34 @@
+{
+  "id": "sendgrid",
+  "name": "SendGrid Email Service",
+  "description": "Comprehensive email platform with marketing and transactional capabilities",
+  "category": "email",
+  "complexity": "moderate",
+  "pricing": "freemium",
+  "setupTime": 20,
+  "dependencies": [],
+  "conflicts": ["resend", "postmark"],
+  "documentation": "https://docs.sendgrid.com/",
+  "features": [
+    "Transactional emails",
+    "Marketing campaigns",
+    "Email templates",
+    "Advanced analytics",
+    "A/B testing",
+    "Contact management"
+  ],
+  "envVars": [
+    {
+      "name": "SENDGRID_API_KEY",
+      "description": "SendGrid API key from your dashboard",
+      "required": true,
+      "example": "SG.your-api-key-here"
+    }
+  ],
+  "setupInstructions": [
+    "1. Sign up at https://sendgrid.com",
+    "2. Create an API key with appropriate permissions",
+    "3. Add your API key to environment variables",
+    "4. Verify your sender identity or domain"
+  ]
+}

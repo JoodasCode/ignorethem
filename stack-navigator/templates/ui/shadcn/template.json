@@ -1,0 +1,18 @@
+{
+  "id": "shadcn-ui",
+  "name": "shadcn/ui Components",
+  "description": "Beautiful and accessible React components built with Radix UI and Tailwind CSS",
+  "category": "ui",
+  "version": "1.0.0",
+  "complexity": "simple",
+  "pricing": "free",
+  "setupTime": 5,
+  "dependencies": ["nextjs-base"],
+  "conflicts": ["chakra-ui", "mantine"],
+  "requiredEnvVars": [],
+  "optionalEnvVars": [],
+  "documentation": "https://ui.shadcn.com",
+  "tags": ["react", "tailwind", "radix-ui", "components"],
+  "popularity": 95,
+  "lastUpdated": "2024-01-01T00:00:00Z"
+}
